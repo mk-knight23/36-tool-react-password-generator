@@ -6,12 +6,12 @@ export default {
     extend: {
       colors: {
         vault: {
-          bg: '#0a0a0c',
-          card: '#121216',
-          primary: '#10b981',
+          bg: 'var(--vault-bg)',
+          card: 'var(--vault-card)',
+          primary: 'var(--vault-primary)',
           danger: '#ef4444',
           warning: '#f59e0b',
-          border: '#1f1f27'
+          border: 'var(--vault-border)'
         }
       },
       fontFamily: {

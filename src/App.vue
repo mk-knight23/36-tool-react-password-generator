@@ -16,7 +16,13 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
              <h1 class="text-3xl font-display font-black tracking-tighter uppercase">Vault<span class="text-vault-primary font-light italic">Pass</span></h1>
           </div>
           <div class="flex items-center space-x-6">
-             <a href="https://github.com/mk-knight23/51-Password-Generator-React" target="_blank" class="text-slate-500 hover:text-white transition-colors">
+             <a
+               href="https://github.com/mk-knight23/51-Password-Generator-React"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-slate-500 hover:text-white transition-colors"
+               aria-label="View source on GitHub"
+             >
                 <Github :size="20" />
              </a>
           </div>
@@ -53,7 +59,7 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
     </div>
 
     <!-- Footer -->
-    <footer class="lg:col-span-12 pt-20 border-t border-vault-border flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-700">
+    <footer class="lg:col-span-12 pt-20 border-t border-vault-border flex flex-col md:flex-row justify-between items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-700">
        <p>© 2026 VaultPass Systems. Architecture by Staff Engineering.</p>
        <div class="flex gap-10">
           <a href="#" class="hover:text-vault-primary transition-colors">Crypto Algorithm</a>
