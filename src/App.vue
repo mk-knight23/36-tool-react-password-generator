@@ -1,11 +1,28 @@
 <script setup lang="ts">
 import GeneratorCore from './components/generator/GeneratorCore.vue'
 import AuditLog from './components/history/AuditLog.vue'
-import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
+import SettingsPanel from './components/ui/SettingsPanel.vue'
+import { ShieldCheck, Github, Zap, Info } from 'lucide-vue-next'
+import { useSettingsStore } from './stores/settings'
+import { useStatsStore } from './stores/stats'
+import { useAudio } from './composables/useAudio'
+
+const settingsStore = useSettingsStore()
+const statsStore = useStatsStore()
+const audio = useAudio()
+
+function openSettings() {
+  audio.playClick()
+  statsStore.recordSettingsOpen()
+}
+
+function recordClick() {
+  statsStore.recordClick()
+}
 </script>
 
 <template>
-  <div class="max-w-6xl mx-auto px-6 py-12 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12">
+  <div class="max-w-6xl mx-auto px-6 py-12 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12" :class="{ 'dark': settingsStore.isDarkMode, 'light': !settingsStore.isDarkMode }">
     <!-- Header/Intro -->
     <div class="lg:col-span-12 space-y-4 mb-8">
        <div class="flex items-center justify-between">
@@ -13,9 +30,12 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
              <div class="w-12 h-12 bg-vault-primary rounded-2xl flex items-center justify-center text-black shadow-xl shadow-vault-primary/20 rotate-3">
                 <ShieldCheck :size="28" />
              </div>
-             <h1 class="text-3xl font-display font-black tracking-tighter uppercase">Vault<span class="text-vault-primary font-light italic">Pass</span></h1>
+             <h1 class="text-3xl font-display font-black tracking-tighter uppercase text-white">Vault<span class="text-vault-primary font-light italic">Pass</span></h1>
           </div>
           <div class="flex items-center space-x-6">
+             <button @click="openSettings" @click.capture="recordClick" class="text-slate-500 hover:text-white transition-colors cursor-pointer" aria-label="Settings">
+                <Info :size="20" />
+             </button>
              <a
                href="https://github.com/mk-knight23/51-Password-Generator-React"
                target="_blank"
@@ -39,7 +59,7 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
           <p class="text-slate-500 font-medium text-lg max-w-xl">Cryptographically secure password generation with entropy-driven security assessment.</p>
        </div>
 
-       <GeneratorCore />
+       <GeneratorCore @click.capture="recordClick" />
     </div>
 
     <!-- Sidebar -->
@@ -55,7 +75,7 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
           </div>
        </div>
 
-       <AuditLog />
+       <AuditLog @click.capture="recordClick" />
     </div>
 
     <!-- Footer -->
@@ -66,5 +86,22 @@ import { ShieldCheck, Github, Zap } from 'lucide-vue-next'
           <a href="#" class="hover:text-vault-primary transition-colors">Privacy Shield</a>
        </div>
     </footer>
+
+    <SettingsPanel />
   </div>
 </template>
+
+<style>
+kbd {
+  @apply px-2 py-1 text-xs font-mono bg-slate-200 dark:bg-slate-700 rounded;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-enter-active {
+  animation: fadeIn 0.3s ease-out;
+}
+</style>
