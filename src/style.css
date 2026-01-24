@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  background-color: #0a0a0c;
+  color: #ffffff;
+}
+
+body {
+  @apply antialiased text-white selection:bg-vault-primary selection:text-black;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.custom-slider {
+  @apply w-full h-2 bg-vault-border rounded-lg appearance-none cursor-pointer accent-vault-primary;
+}
+
+.glass-morphism {
+  @apply bg-vault-card/80 backdrop-blur-xl border border-vault-border rounded-3xl shadow-2xl;
+}
