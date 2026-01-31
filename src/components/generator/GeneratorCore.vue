@@ -147,7 +147,8 @@ const getStrengthBgColor = (score: number) => {
           :value="password"
           readonly
           aria-label="Generated password"
-          class="retro-input w-full text-center text-xl md:text-2xl tracking-widest"
+          class="retro-input w-full text-center text-xl md:text-2xl tracking-widest transition-all"
+          :class="{ 'text-retro-green border-retro-green': copied }"
           style="font-family: 'Courier New', monospace;"
         >
         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -161,7 +162,8 @@ const getStrengthBgColor = (score: number) => {
           </button>
           <button
             @click="handleCopy"
-            class="retro-btn-primary p-2"
+            class="retro-btn p-2 relative"
+            :class="copied ? 'bg-retro-green text-retro-black border-retro-green' : 'retro-btn-primary'"
             :aria-label="copied ? 'Password copied' : 'Copy password'"
           >
             <Check v-if="copied" :size="16" :stroke-width="2.5" />

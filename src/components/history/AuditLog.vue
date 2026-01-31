@@ -20,53 +20,53 @@ const clearHistory = () => {
 </script>
 
 <template>
-  <div class="glass-morphism p-8 space-y-8">
-    <div class="flex items-center justify-between">
-      <h3 class="text-sm font-black uppercase tracking-[0.2em] text-slate-400 flex items-center">
-        <History class="mr-2" :size="16" /> Audit Log
+  <div class="retro-card p-6 space-y-6">
+    <div class="flex items-center justify-between border-b-2 border-retro-border pb-4">
+      <h3 class="pixel-text text-sm font-bold text-retro-gray tracking-widest flex items-center gap-2">
+        <History :size="16" :stroke-width="2.5" /> [SESSION LOG]
       </h3>
       <button
         v-if="store.history.length"
         @click="clearHistory"
-        class="text-[10px] font-black uppercase text-red-500 hover:underline"
+        class="pixel-text text-xs text-red-500 hover:text-red-400 uppercase"
         aria-label="Clear all history"
       >
-        Purge
+        [CLEAR]
       </button>
     </div>
 
-    <div class="space-y-4" role="list" aria-label="Password generation history">
+    <div class="space-y-3" role="list" aria-label="Password generation history">
       <div
         v-for="item in store.history"
         :key="item.id"
-        class="p-4 bg-vault-bg/40 rounded-2xl border border-vault-border flex items-center justify-between group transition-all hover:bg-vault-bg"
+        class="p-3 bg-retro-dim border-2 border-retro-border flex items-center justify-between group hover:border-retro-gray transition-colors"
         role="listitem"
       >
-        <div class="flex items-center space-x-4">
-           <div class="p-2 bg-slate-800 rounded-lg text-slate-500" aria-hidden="true">
-              <Shield :size="14" />
+        <div class="flex items-center gap-3">
+           <div class="p-2 bg-retro-black border border-retro-border text-retro-gray" aria-hidden="true">
+              <Shield :size="14" :stroke-width="2.5" />
            </div>
-           <div class="space-y-0.5">
-              <p class="text-sm font-mono tracking-wider text-slate-300 dark:text-slate-300">••••••••••••</p>
-              <div class="flex items-center space-x-2 text-[10px] text-slate-600 dark:text-slate-500 font-bold uppercase tracking-tighter">
-                 <Clock :size="10" />
+           <div class="space-y-1">
+              <p class="pixel-text text-sm text-retro-white tracking-widest">••••••••••••</p>
+              <div class="flex items-center gap-2 text-xs text-retro-gray pixel-text">
+                 <Clock :size="10" :stroke-width="2.5" />
                  <span>{{ formatTime(item.timestamp) }}</span>
               </div>
            </div>
         </div>
         <button
           @click="restoreFromHistory(item)"
-          class="p-2 text-slate-700 dark:text-slate-500 hover:text-vault-primary transition-colors opacity-0 group-hover:opacity-100"
+          class="p-2 text-retro-gray hover:text-retro-green transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
           aria-label="Restore password from history"
-          title="Restore"
+          title="Copy to clipboard"
         >
-           <RefreshCcw :size="14" />
+           <RefreshCcw :size="14" :stroke-width="2.5" />
         </button>
       </div>
 
-      <div v-if="!store.history.length" class="text-center py-10 space-y-4 opacity-30">
-         <History :size="48" class="mx-auto text-slate-600" />
-         <p class="text-[10px] font-black uppercase tracking-[0.3em]">No keys generated in this session</p>
+      <div v-if="!store.history.length" class="text-center py-8 border-2 border-dashed border-retro-border">
+         <History :size="32" :stroke-width="1.5" class="mx-auto mb-3 text-retro-gray opacity-50" />
+         <p class="pixel-text text-xs text-retro-gray uppercase tracking-widest">No passwords generated yet</p>
       </div>
     </div>
   </div>
