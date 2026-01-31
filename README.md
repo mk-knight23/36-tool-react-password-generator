@@ -20,11 +20,16 @@ VaultPass generates strong, random passwords using cryptographically secure rand
 
 | Input | Type | Range | Description |
 |-------|------|-------|-------------|
-| Length | Number | 4-64 | Password character count |
-| Uppercase | Boolean | - | Include A-Z characters |
-| Lowercase | Boolean | - | Include a-z characters |
-| Numbers | Boolean | - | Include 0-9 digits |
-| Symbols | Boolean | - | Include special characters (!@#$%) |
+| Mode | Toggle | Random/Passphrase | Switch between random chars or memorable words |
+| Length | Number | 4-64 | Password character count (or word count for passphrase) |
+| Uppercase | Boolean | - | Include A-Z characters (Random mode) |
+| Lowercase | Boolean | - | Include a-z characters (Random mode) |
+| Numbers | Boolean | - | Include 0-9 digits (Random mode) |
+| Symbols | Boolean | - | Include special characters (!@#$%) (Random mode) |
+
+### Passphrase Mode
+
+Generates memorable passphrases like `garden-tiger-forest-42` using a curated wordlist (100+ words). One word is randomly capitalized and a number suffix is added for extra entropy.
 
 ---
 
@@ -41,11 +46,12 @@ VaultPass generates strong, random passwords using cryptographically secure rand
 
 ## Workflow Steps
 
-1. **Configure Options** — Set password length and character types
-2. **Generate** — Click [GENERATE] or press CMD+ENTER
-3. **Review** — Check strength meter and entropy rating
-4. **Copy** — Click copy button or press CMD+C
-5. **Optional** — Download as .txt file or view history
+1. **Choose Mode** — Toggle between [RANDOM] or [PASSPHRASE] mode
+2. **Configure Options** — Set length and character types (or word count for passphrase)
+3. **Generate** — Click [GENERATE] or press CMD+ENTER
+4. **Review** — Check strength meter and entropy rating
+5. **Copy** — Click copy button or press CMD+C
+6. **Optional** — Download as .txt file or view session history
 
 ---
 
@@ -131,6 +137,7 @@ Password strength is measured in bits of entropy:
 - **Local Storage**: History cleared when browser data is deleted
 - **No Sync**: Settings don't sync across devices
 - **Character Set**: Limited to standard ASCII printable characters
+- **No Password Saving**: By design, this tool does NOT save passwords permanently. Session history only — we don't want to become a password manager (intentionally not solved)
 
 ---
 
@@ -150,6 +157,7 @@ Password strength is measured in bits of entropy:
 │   │       └── SettingsPanel.vue  # Theme and audio settings
 │   ├── composables/
 │   │   ├── useGenerator.ts       # Crypto generation logic
+│   │   ├── usePassphrase.ts      # Word-based passphrase generation
 │   │   ├── useStrength.ts        # Entropy calculation
 │   │   ├── useTheme.ts           # Theme management
 │   │   ├── useAudio.ts           # Sound effects
