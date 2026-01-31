@@ -2,6 +2,7 @@
 import { ref, computed, watchEffect } from 'vue'
 import { useVaultStore } from '@/stores/vaultStore'
 import { useGenerator } from '@/composables/useGenerator'
+import { usePassphrase } from '@/composables/usePassphrase'
 import { useStrength } from '@/composables/useStrength'
 import { useTheme } from '@/composables/useTheme'
 import { useKeyboard } from '@/composables/useKeyboard'
@@ -22,6 +23,7 @@ import { useClipboard } from '@vueuse/core'
 
 const store = useVaultStore()
 const { generate } = useGenerator()
+const { generate: generatePassphrase } = usePassphrase()
 const { calculate } = useStrength()
 const { isDark, toggleTheme } = useTheme()
 
@@ -32,8 +34,14 @@ const showShortcuts = ref(false)
 
 const { copy, copied } = useClipboard()
 
+const isPassphraseMode = ref(false)
+
 const handleGenerate = () => {
-  password.value = generate(store.config)
+  if (isPassphraseMode.value) {
+    password.value = generatePassphrase(store.config)
+  } else {
+    password.value = generate(store.config)
+  }
   strength.value = calculate(password.value)
   store.addToHistory(password.value)
 }
@@ -108,6 +116,26 @@ const getStrengthBgColor = (score: number) => {
       >
         <Sun v-if="!isDark" :size="18" :stroke-width="2.5" />
         <Moon v-else :size="18" :stroke-width="2.5" />
+      </button>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div class="flex justify-center gap-4">
+      <button
+        @click="isPassphraseMode = false; handleGenerate()"
+        class="retro-btn pixel-text"
+        :class="!isPassphraseMode ? 'retro-btn-primary' : ''"
+        aria-label="Random password mode"
+      >
+        [RANDOM]
+      </button>
+      <button
+        @click="isPassphraseMode = true; handleGenerate()"
+        class="retro-btn pixel-text"
+        :class="isPassphraseMode ? 'retro-btn-primary' : ''"
+        aria-label="Passphrase mode"
+      >
+        [PASSPHRASE]
       </button>
     </div>
 
