@@ -33,6 +33,7 @@ const password = ref('')
 const isVisible = ref(true)
 const strength = ref(calculate(''))
 const showShortcuts = ref(false)
+const passwordNote = ref('')
 
 const { copy, copied } = useClipboard()
 
@@ -53,7 +54,10 @@ const handleGenerate = () => {
       password.value = generate(store.config)
   }
   strength.value = calculate(password.value)
-  store.addToHistory(password.value)
+  // Store note with password (if provided)
+  store.addToHistory(password.value, passwordNote.value || undefined)
+  // Clear note after generation
+  passwordNote.value = ''
 }
 
 const handleCopy = () => {
@@ -159,6 +163,21 @@ const getStrengthBgColor = (score: number) => {
 
     <!-- Main Display Card -->
     <div class="retro-card p-6 space-y-6">
+      <!-- Password Note Input -->
+      <div class="space-y-2">
+        <label class="pixel-text text-xs text-retro-gray tracking-widest">
+          [OPTIONAL NOTE] - Remind yourself where you'll use this
+        </label>
+        <input
+          v-model="passwordNote"
+          type="text"
+          placeholder="e.g., for GitHub, work email, router admin..."
+          class="retro-input w-full text-sm"
+          maxlength="50"
+          aria-label="Password note"
+        >
+      </div>
+
       <div class="relative">
         <input
           :type="isVisible ? 'text' : 'password'"

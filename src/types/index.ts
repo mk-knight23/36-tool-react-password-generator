@@ -18,4 +18,5 @@ export interface GeneratedHistory {
   id: string;
   value: string;
   timestamp: number;
+  note?: string;
 }
