@@ -176,7 +176,7 @@ Password strength is measured in bits of entropy:
 ## Project Structure
 
 ```
-36-tool-react-password-generator/
+36-tool-vaultpass-secure-password-generator/
 ├── design-system/
 │   └── MASTER.md              # Retro Pixel theme specification
 ├── src/
