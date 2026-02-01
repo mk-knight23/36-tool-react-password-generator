@@ -19,7 +19,9 @@ import {
   Sun,
   Moon,
   Download,
-  Keyboard
+  Keyboard,
+  Layers,
+  FileText
 } from 'lucide-vue-next'
 
 const store = useVaultStore()
@@ -35,6 +37,10 @@ const isVisible = ref(true)
 const strength = ref(calculate(''))
 const showShortcuts = ref(false)
 const passwordNote = ref('')
+const batchMode = ref(false)
+const batchSize = ref(5)
+const generatedBatch = ref<string[]>([])
+const showBatchResults = ref(false)
 
 type Mode = 'random' | 'passphrase' | 'pronounceable'
 const currentMode = ref<Mode>('random')
@@ -72,6 +78,65 @@ const handleCopy = async () => {
 
 const handleToggleVisibility = () => {
   isVisible.value = !isVisible.value
+}
+
+// Batch generation
+const handleBatchGenerate = () => {
+  generatedBatch.value = []
+  showBatchResults.value = true
+
+  for (let i = 0; i < batchSize.value; i++) {
+    let generated = ''
+    switch (currentMode.value) {
+      case 'passphrase':
+        generated = generatePassphrase(store.config)
+        break
+      case 'pronounceable':
+        const syllableCount = Math.max(3, Math.floor(store.config.length / 6))
+        generated = generatePronounceable(store.config.length, syllableCount)
+        break
+      default:
+        generated = generate(store.config)
+    }
+    generatedBatch.value.push(generated)
+    store.addToHistory(generated, `Batch ${i + 1}/${batchSize.value}`)
+  }
+
+  // Set first password as main password
+  password.value = generatedBatch.value[0]
+  strength.value = calculate(password.value)
+}
+
+const copyAllBatch = async () => {
+  const allPasswords = generatedBatch.value.join('\n')
+  try {
+    await navigator.clipboard.writeText(allPasswords)
+    toast.success('All passwords copied to clipboard!')
+  } catch {
+    toast.error('Failed to copy passwords')
+  }
+}
+
+const downloadBatch = () => {
+  const content = generatedBatch.value.map((pwd, i) =>
+    `Password ${i + 1}: ${pwd}`
+  ).join('\n')
+  const blob = new Blob([content], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `vaultpass-batch-${Date.now()}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const copyPassword = async (pwd: string) => {
+  try {
+    await navigator.clipboard.writeText(pwd)
+    toast.success('Password copied!')
+  } catch {
+    toast.error('Failed to copy')
+  }
 }
 
 // Keyboard shortcuts
@@ -352,6 +417,94 @@ const getStrengthBgColor = (score: number) => {
         >
           <span class="pixel-text text-sm text-retro-gray">{{ shortcut.action }}</span>
           <kbd class="pixel-text">{{ shortcut.key }}</kbd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Mode Section -->
+    <div class="retro-card p-6 space-y-6">
+      <div class="flex items-center justify-between border-b-2 border-retro-border pb-4">
+        <h3 class="pixel-text text-sm font-bold text-retro-gray tracking-widest flex items-center gap-2">
+          <Layers :size="16" :stroke-width="2.5" /> [BATCH GENERATION]
+        </h3>
+        <button
+          @click="batchMode = !batchMode"
+          class="retro-btn pixel-text text-xs"
+          :class="batchMode ? 'retro-btn-primary' : ''"
+          aria-label="Toggle batch mode"
+        >
+          {{ batchMode ? '[ENABLED]' : '[DISABLED]' }}
+        </button>
+      </div>
+
+      <div v-if="batchMode" class="space-y-4">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="pixel-text text-sm text-retro-gray">QUANTITY</span>
+            <span class="pixel-text text-sm text-retro-green">{{ batchSize }} passwords</span>
+          </div>
+          <input
+            type="range"
+            min="2"
+            max="20"
+            v-model.number="batchSize"
+            class="custom-slider"
+            aria-label="Batch size"
+          >
+        </div>
+
+        <button
+          @click="handleBatchGenerate"
+          class="retro-btn-primary pixel-text py-3 w-full flex items-center justify-center gap-2"
+          aria-label="Generate batch of passwords"
+        >
+          <RefreshCw :size="16" :stroke-width="2.5" />
+          <span>[GENERATE {{ batchSize }} PASSWORDS]</span>
+        </button>
+
+        <!-- Batch Results -->
+        <div v-if="showBatchResults && generatedBatch.length" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="pixel-text text-xs text-retro-gray tracking-widest">
+              [GENERATED PASSWORDS]
+            </span>
+            <div class="flex gap-2">
+              <button
+                @click="copyAllBatch"
+                class="retro-btn pixel-text text-xs p-2"
+                title="Copy all passwords"
+              >
+                [COPY ALL]
+              </button>
+              <button
+                @click="downloadBatch"
+                class="retro-btn pixel-text text-xs p-2"
+                title="Download as file"
+              >
+                [DOWNLOAD]
+              </button>
+            </div>
+          </div>
+
+          <div class="max-h-60 overflow-y-auto space-y-2 editorial-scrollbar">
+            <div
+              v-for="(pwd, index) in generatedBatch"
+              :key="index"
+              class="p-3 bg-retro-dim border-2 border-retro-border flex items-center justify-between group hover:border-retro-gray transition-colors"
+            >
+              <div class="flex items-center gap-3 flex-1 min-w-0">
+                <span class="pixel-text text-xs text-retro-gray shrink-0">{{ index + 1 }}.</span>
+                <code class="text-sm text-retro-white tracking-widest truncate flex-1">{{ pwd }}</code>
+              </div>
+              <button
+                @click="copyPassword(pwd)"
+                class="p-2 text-retro-gray hover:text-retro-green opacity-0 group-hover:opacity-100 focus:opacity-100"
+                :aria-label="`Copy password ${index + 1}`"
+              >
+                <Copy :size="14" :stroke-width="2.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

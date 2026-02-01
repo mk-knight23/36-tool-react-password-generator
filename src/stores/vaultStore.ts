@@ -13,6 +13,7 @@ export const useVaultStore = defineStore('vault', {
       excludeSimilar: false,
     }),
     history: useLocalStorage<any[]>('vault-history', []),
+    batchSize: 1,
   }),
   actions: {
     updateConfig(newConfig: Partial<PasswordConfig>) {
@@ -25,11 +26,31 @@ export const useVaultStore = defineStore('vault', {
         timestamp: Date.now(),
         note
       })
-      if (this.history.length > 10) this.history.pop()
+      if (this.history.length > 50) this.history.pop() // Increased from 10 to 50
     },
     updateNote(id: string, note: string) {
       const entry = this.history.find(h => h.id === id)
       if (entry) entry.note = note
+    },
+    clearHistory() {
+      this.history = []
+    },
+    exportHistory() {
+      const data = {
+        version: '2.1.0',
+        exportDate: new Date().toISOString(),
+        passwords: this.history
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `vaultpass-backup-${Date.now()}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+    setBatchSize(size: number) {
+      this.batchSize = size
     }
   }
 })

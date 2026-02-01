@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useVaultStore } from '@/stores/vaultStore'
-import { History, Trash2, Clock, Shield, RefreshCcw, StickyNote } from 'lucide-vue-next'
+import { History, Trash2, Clock, Shield, RefreshCcw, StickyNote, Search, Filter } from 'lucide-vue-next'
 import type { GeneratedHistory } from '@/types'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const store = useVaultStore()
 
@@ -37,13 +37,44 @@ const cancelEdit = () => {
   editingId.value = null
   editingNote.value = ''
 }
+
+// Search and filter state
+const searchQuery = ref('')
+const filterBy = ref<'all' | 'withNotes' | 'recent'>('all')
+
+// Computed filtered history
+const filteredHistory = computed(() => {
+  let filtered = store.history
+
+  // Apply search filter
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(item =>
+      (item.note && item.note.toLowerCase().includes(query)) ||
+      item.value.toLowerCase().includes(query)
+    )
+  }
+
+  // Apply category filter
+  if (filterBy.value === 'withNotes') {
+    filtered = filtered.filter(item => item.note && item.note.length > 0)
+  } else if (filterBy.value === 'recent') {
+    // Last hour only
+    const oneHourAgo = Date.now() - (60 * 60 * 1000)
+    filtered = filtered.filter(item => item.timestamp > oneHourAgo)
+  }
+
+  return filtered
+})
+
+const historyCount = computed(() => filteredHistory.value.length)
 </script>
 
 <template>
   <div class="retro-card p-6 space-y-6">
     <div class="flex items-center justify-between border-b-2 border-retro-border pb-4">
       <h3 class="pixel-text text-sm font-bold text-retro-gray tracking-widest flex items-center gap-2">
-        <History :size="16" :stroke-width="2.5" /> [SESSION LOG]
+        <History :size="16" :stroke-width="2.5" /> [SESSION LOG] ({{ historyCount }})
       </h3>
       <button
         v-if="store.history.length"
@@ -55,9 +86,49 @@ const cancelEdit = () => {
       </button>
     </div>
 
+    <!-- Search and Filter Controls -->
+    <div v-if="store.history.length" class="space-y-3">
+      <div class="relative">
+        <Search :size="14" :stroke-width="2.5" class="absolute left-3 top-1/2 -translate-y-1/2 text-retro-gray" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search passwords or notes..."
+          class="retro-input w-full pl-10 text-sm"
+          aria-label="Search password history"
+        >
+      </div>
+      <div class="flex gap-2">
+        <button
+          @click="filterBy = 'all'"
+          class="retro-btn pixel-text text-xs"
+          :class="filterBy === 'all' ? 'retro-btn-primary' : ''"
+          aria-label="Show all passwords"
+        >
+          [ALL]
+        </button>
+        <button
+          @click="filterBy = 'withNotes'"
+          class="retro-btn pixel-text text-xs"
+          :class="filterBy === 'withNotes' ? 'retro-btn-primary' : ''"
+          aria-label="Show passwords with notes"
+        >
+          [WITH NOTES]
+        </button>
+        <button
+          @click="filterBy = 'recent'"
+          class="retro-btn pixel-text text-xs"
+          :class="filterBy === 'recent' ? 'retro-btn-primary' : ''"
+          aria-label="Show recent passwords"
+        >
+          [RECENT]
+        </button>
+      </div>
+    </div>
+
     <div class="space-y-3" role="list" aria-label="Password generation history">
       <div
-        v-for="item in store.history"
+        v-for="item in filteredHistory"
         :key="item.id"
         class="p-3 bg-retro-dim border-2 border-retro-border flex items-center justify-between group hover:border-retro-gray transition-colors"
         role="listitem"
@@ -122,7 +193,12 @@ const cancelEdit = () => {
         </button>
       </div>
 
-      <div v-if="!store.history.length" class="text-center py-8 border-2 border-dashed border-retro-border">
+      <div v-if="!filteredHistory.length && store.history.length" class="text-center py-8 border-2 border-dashed border-retro-border">
+         <Search :size="32" :stroke-width="1.5" class="mx-auto mb-3 text-retro-gray opacity-50" />
+         <p class="pixel-text text-xs text-retro-gray uppercase tracking-widest">No passwords match your search</p>
+      </div>
+
+      <div v-else-if="!store.history.length" class="text-center py-8 border-2 border-dashed border-retro-border">
          <History :size="32" :stroke-width="1.5" class="mx-auto mb-3 text-retro-gray opacity-50" />
          <p class="pixel-text text-xs text-retro-gray uppercase tracking-widest">No passwords generated yet</p>
       </div>
