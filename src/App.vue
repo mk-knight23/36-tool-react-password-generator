@@ -55,7 +55,7 @@ function recordClick() {
             <Keyboard :size="18" :stroke-width="2.5" />
           </button>
           <a
-            href="https://github.com/mk-knight23/51-Password-Generator-React"
+            href="https://github.com/mk-knight23/36-tool-react-password-generator"
             target="_blank"
             rel="noopener noreferrer"
             class="retro-btn"
@@ -107,16 +107,11 @@ function recordClick() {
     <!-- Footer -->
     <footer class="mt-12 pt-6 border-t-2 border-retro text-center">
       <p class="pixel-text text-xs text-retro-gray tracking-widest">
-        (C) 2026 VAULTPASS SYSTEMS. ALL RIGHTS RESERVED.
+        Made by MK — Musharraf Kazi
       </p>
-      <div class="flex justify-center gap-6 mt-3">
-        <a href="#" class="pixel-text text-xs text-retro-gray hover:text-retro-green transition-colors">
-          [ALGORITHM]
-        </a>
-        <a href="#" class="pixel-text text-xs text-retro-gray hover:text-retro-green transition-colors">
-          [PRIVACY]
-        </a>
-      </div>
+      <p class="pixel-text text-xs text-retro-gray tracking-widest mt-1">
+        (C) 2026 VAULTPASS SYSTEMS
+      </p>
     </footer>
 
     <SettingsPanel />
