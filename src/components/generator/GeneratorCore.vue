@@ -8,6 +8,7 @@ import { useStrength } from '@/composables/useStrength'
 import { useTheme } from '@/composables/useTheme'
 import { useKeyboard } from '@/composables/useKeyboard'
 import { useToast } from '@/composables/useToast'
+import { checkCompromisedPassword, analyzeWeakPatterns, getPasswordRecommendations } from '@/services/backendService'
 import {
   Copy,
   RefreshCw,
@@ -41,6 +42,8 @@ const batchMode = ref(false)
 const batchSize = ref(5)
 const generatedBatch = ref<string[]>([])
 const showBatchResults = ref(false)
+const compromisedCheck = ref<{ count: number; loading: boolean }>({ count: -1, loading: false })
+const showRecommendations = ref(false)
 
 type Mode = 'random' | 'passphrase' | 'pronounceable'
 const currentMode = ref<Mode>('random')
@@ -59,6 +62,13 @@ const handleGenerate = () => {
       password.value = generate(store.config)
   }
   strength.value = calculate(password.value)
+
+  // Check for compromised password
+  compromisedCheck.value = { count: -1, loading: true }
+  checkCompromisedPassword(password.value).then(count => {
+    compromisedCheck.value = { count, loading: false }
+  })
+
   // Store note with password (if provided)
   store.addToHistory(password.value, passwordNote.value || undefined)
   // Clear note after generation
@@ -161,6 +171,26 @@ const shortcutsList = computed(() => [
   { key: 'SPACE', action: 'Toggle visibility' },
   { key: 'CMD+D', action: 'Toggle theme' }
 ])
+
+// Password recommendations
+const recommendations = computed(() => {
+  if (!password.value) return []
+  return getPasswordRecommendations(password.value, strength.value.entropy)
+})
+
+const weakPatterns = computed(() => {
+  if (!password.value) return null
+  return analyzeWeakPatterns(password.value)
+})
+
+// Compromised password status
+const compromisedStatus = computed(() => {
+  if (compromisedCheck.value.loading) return 'loading'
+  if (compromisedCheck.value.count === -1) return 'unknown'
+  if (compromisedCheck.value.count === 0) return 'safe'
+  if (compromisedCheck.value.count > 0) return 'compromised'
+  return 'unknown'
+})
 
 // Download as text file
 const downloadPassword = () => {
@@ -299,6 +329,76 @@ const getStrengthBgColor = (score: number) => {
             class="h-full flex-1 border-r border-retro-border last:border-r-0"
             :class="i <= strength.score + 1 ? getStrengthBgColor(strength.score) : 'bg-retro-dim'"
           ></div>
+        </div>
+      </div>
+
+      <!-- Security Check -->
+      <div class="space-y-3" role="status" aria-live="polite">
+        <div class="flex justify-between items-center">
+          <span class="pixel-text text-xs text-retro-gray tracking-widest">
+            [SECURITY CHECK]
+          </span>
+          <button
+            @click="showRecommendations = !showRecommendations"
+            class="pixel-text text-xs text-retro-cyan hover:text-retro-white"
+          >
+            [{{ showRecommendations ? 'HIDE' : 'SHOW' }} ANALYSIS]
+          </button>
+        </div>
+
+        <!-- Compromised Status -->
+        <div class="p-3 border-2 border-retro-border flex items-center justify-between"
+             :class="{
+               'bg-red-900/20 border-red-500': compromisedStatus === 'compromised',
+               'bg-green-900/20 border-green-500': compromisedStatus === 'safe',
+               'bg-retro-dim': compromisedStatus === 'loading' || compromisedStatus === 'unknown'
+             }"
+        >
+          <div class="flex items-center gap-2">
+            <Shield :size="14" :stroke-width="2.5" />
+            <span class="pixel-text text-sm">
+              <template v-if="compromisedStatus === 'loading'">Checking...</template>
+              <template v-else-if="compromisedStatus === 'safe'">Not found in breaches</template>
+              <template v-else-if="compromisedStatus === 'compromised'">
+                Found in {{ compromisedCheck.count }} breach(es)!
+              </template>
+              <template v-else>Check unavailable</template>
+            </span>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div v-if="showRecommendations && recommendations.length" class="space-y-2">
+          <div class="pixel-text text-xs text-retro-gray tracking-widest">
+            [RECOMMENDATIONS]
+          </div>
+          <div class="space-y-1">
+            <div
+              v-for="(rec, index) in recommendations"
+              :key="index"
+              class="p-2 bg-retro-dim border border-retro-border pixel-text text-xs flex items-start gap-2"
+            >
+              <span class="text-retro-amber">▸</span>
+              <span>{{ rec }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weak Pattern Alerts -->
+        <div v-if="showRecommendations && weakPatterns && (weakPatterns.isSequential || weakPatterns.isRepeated || weakPatterns.isCommon)"
+             class="space-y-2">
+          <div class="pixel-text text-xs text-retro-gray tracking-widest">
+            [WEAK PATTERNS DETECTED]
+          </div>
+          <div v-if="weakPatterns.isSequential" class="p-2 bg-red-900/20 border-2 border-red-500 pixel-text text-xs text-red-400">
+            ⚠ Sequential characters detected (abc, 123)
+          </div>
+          <div v-if="weakPatterns.isRepeated" class="p-2 bg-red-900/20 border-2 border-red-500 pixel-text text-xs text-red-400">
+            ⚠ Repeated characters detected (aaa, 111)
+          </div>
+          <div v-if="weakPatterns.isCommon" class="p-2 bg-red-900/20 border-2 border-red-500 pixel-text text-xs text-red-400">
+            ⚠ Common password detected
+          </div>
         </div>
       </div>
     </div>
