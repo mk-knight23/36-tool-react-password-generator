@@ -3,6 +3,7 @@ import { ref, computed, watchEffect } from 'vue'
 import { useVaultStore } from '@/stores/vaultStore'
 import { useGenerator } from '@/composables/useGenerator'
 import { usePassphrase } from '@/composables/usePassphrase'
+import { usePronounceable } from '@/composables/usePronounceable'
 import { useStrength } from '@/composables/useStrength'
 import { useTheme } from '@/composables/useTheme'
 import { useKeyboard } from '@/composables/useKeyboard'
@@ -24,6 +25,7 @@ import { useClipboard } from '@vueuse/core'
 const store = useVaultStore()
 const { generate } = useGenerator()
 const { generate: generatePassphrase } = usePassphrase()
+const { generate: generatePronounceable } = usePronounceable()
 const { calculate } = useStrength()
 const { isDark, toggleTheme } = useTheme()
 
@@ -34,13 +36,21 @@ const showShortcuts = ref(false)
 
 const { copy, copied } = useClipboard()
 
-const isPassphraseMode = ref(false)
+type Mode = 'random' | 'passphrase' | 'pronounceable'
+const currentMode = ref<Mode>('random')
 
 const handleGenerate = () => {
-  if (isPassphraseMode.value) {
-    password.value = generatePassphrase(store.config)
-  } else {
-    password.value = generate(store.config)
+  switch (currentMode.value) {
+    case 'passphrase':
+      password.value = generatePassphrase(store.config)
+      break
+    case 'pronounceable':
+      // Use syllable count based on length (approximately length/6 syllables)
+      const syllableCount = Math.max(3, Math.floor(store.config.length / 6))
+      password.value = generatePronounceable(store.config.length, syllableCount)
+      break
+    default:
+      password.value = generate(store.config)
   }
   strength.value = calculate(password.value)
   store.addToHistory(password.value)
@@ -120,19 +130,27 @@ const getStrengthBgColor = (score: number) => {
     </div>
 
     <!-- Mode Toggle -->
-    <div class="flex justify-center gap-4">
+    <div class="flex justify-center gap-2 md:gap-4">
       <button
-        @click="isPassphraseMode = false; handleGenerate()"
-        class="retro-btn pixel-text"
-        :class="!isPassphraseMode ? 'retro-btn-primary' : ''"
+        @click="currentMode = 'random'; handleGenerate()"
+        class="retro-btn pixel-text text-xs md:text-sm"
+        :class="currentMode === 'random' ? 'retro-btn-primary' : ''"
         aria-label="Random password mode"
       >
         [RANDOM]
       </button>
       <button
-        @click="isPassphraseMode = true; handleGenerate()"
-        class="retro-btn pixel-text"
-        :class="isPassphraseMode ? 'retro-btn-primary' : ''"
+        @click="currentMode = 'pronounceable'; handleGenerate()"
+        class="retro-btn pixel-text text-xs md:text-sm"
+        :class="currentMode === 'pronounceable' ? 'retro-btn-primary' : ''"
+        aria-label="Pronounceable password mode"
+      >
+        [PRONOUNCEABLE]
+      </button>
+      <button
+        @click="currentMode = 'passphrase'; handleGenerate()"
+        class="retro-btn pixel-text text-xs md:text-sm"
+        :class="currentMode === 'passphrase' ? 'retro-btn-primary' : ''"
         aria-label="Passphrase mode"
       >
         [PASSPHRASE]
