@@ -2,14 +2,17 @@
 import GeneratorCore from './components/generator/GeneratorCore.vue'
 import AuditLog from './components/history/AuditLog.vue'
 import SettingsPanel from './components/ui/SettingsPanel.vue'
+import ToastContainer from './components/ui/ToastContainer.vue'
 import { Shield, Github, Keyboard } from 'lucide-vue-next'
 import { useSettingsStore } from './stores/settings'
 import { useStatsStore } from './stores/stats'
 import { useAudio } from './composables/useAudio'
+import { useToast } from './composables/useToast'
 
 const settingsStore = useSettingsStore()
 const statsStore = useStatsStore()
 const audio = useAudio()
+const toast = useToast()
 
 function openSettings() {
   audio.playClick()
@@ -115,6 +118,7 @@ function recordClick() {
     </footer>
 
     <SettingsPanel />
+    <ToastContainer />
   </div>
 </template>
 

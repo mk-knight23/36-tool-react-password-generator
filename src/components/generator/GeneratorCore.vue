@@ -7,6 +7,7 @@ import { usePronounceable } from '@/composables/usePronounceable'
 import { useStrength } from '@/composables/useStrength'
 import { useTheme } from '@/composables/useTheme'
 import { useKeyboard } from '@/composables/useKeyboard'
+import { useToast } from '@/composables/useToast'
 import {
   Copy,
   RefreshCw,
@@ -20,7 +21,6 @@ import {
   Download,
   Keyboard
 } from 'lucide-vue-next'
-import { useClipboard } from '@vueuse/core'
 
 const store = useVaultStore()
 const { generate } = useGenerator()
@@ -28,14 +28,13 @@ const { generate: generatePassphrase } = usePassphrase()
 const { generate: generatePronounceable } = usePronounceable()
 const { calculate } = useStrength()
 const { isDark, toggleTheme } = useTheme()
+const toast = useToast()
 
 const password = ref('')
 const isVisible = ref(true)
 const strength = ref(calculate(''))
 const showShortcuts = ref(false)
 const passwordNote = ref('')
-
-const { copy, copied } = useClipboard()
 
 type Mode = 'random' | 'passphrase' | 'pronounceable'
 const currentMode = ref<Mode>('random')
@@ -60,9 +59,14 @@ const handleGenerate = () => {
   passwordNote.value = ''
 }
 
-const handleCopy = () => {
+const handleCopy = async () => {
   if (password.value) {
-    copy(password.value)
+    try {
+      await navigator.clipboard.writeText(password.value)
+      toast.success('Password copied to clipboard!')
+    } catch {
+      toast.error('Failed to copy password')
+    }
   }
 }
 
@@ -184,8 +188,7 @@ const getStrengthBgColor = (score: number) => {
           :value="password"
           readonly
           aria-label="Generated password"
-          class="retro-input w-full text-center text-xl md:text-2xl tracking-widest transition-all"
-          :class="{ 'text-retro-green border-retro-green': copied }"
+          class="retro-input w-full text-center text-xl md:text-2xl tracking-widest"
           style="font-family: 'Courier New', monospace;"
         >
         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -199,12 +202,10 @@ const getStrengthBgColor = (score: number) => {
           </button>
           <button
             @click="handleCopy"
-            class="retro-btn p-2 relative"
-            :class="copied ? 'bg-retro-green text-retro-black border-retro-green' : 'retro-btn-primary'"
-            :aria-label="copied ? 'Password copied' : 'Copy password'"
+            class="retro-btn p-2 retro-btn-primary"
+            aria-label="Copy password to clipboard"
           >
-            <Check v-if="copied" :size="16" :stroke-width="2.5" />
-            <Copy v-else :size="16" :stroke-width="2.5" />
+            <Copy :size="16" :stroke-width="2.5" />
           </button>
           <button
             @click="downloadPassword"
