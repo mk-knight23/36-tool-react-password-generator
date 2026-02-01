@@ -20,16 +20,21 @@ VaultPass generates strong, random passwords using cryptographically secure rand
 
 | Input | Type | Range | Description |
 |-------|------|-------|-------------|
-| Mode | Toggle | Random/Passphrase | Switch between random chars or memorable words |
+| Mode | Toggle | Random/Pronounceable/Passphrase | Switch between generation modes |
 | Length | Number | 4-64 | Password character count (or word count for passphrase) |
+| Note | Text | Max 50 chars | Optional reminder of where password will be used |
 | Uppercase | Boolean | - | Include A-Z characters (Random mode) |
 | Lowercase | Boolean | - | Include a-z characters (Random mode) |
 | Numbers | Boolean | - | Include 0-9 digits (Random mode) |
 | Symbols | Boolean | - | Include special characters (!@#$%) (Random mode) |
 
-### Passphrase Mode
+### Generation Modes
 
-Generates memorable passphrases like `garden-tiger-forest-42` using a curated wordlist (100+ words). One word is randomly capitalized and a number suffix is added for extra entropy.
+**Random Mode**: Pure cryptographic randomness with character sets you choose.
+
+**Pronounceable Mode**: Readable yet secure passwords using CV syllable patterns (e.g., `Krota-Fibu-Xami3`).
+
+**Passphrase Mode**: Memorable word combinations like `garden-tiger-forest-42` using a curated wordlist. One word is randomly capitalized and a number suffix is added for extra entropy.
 
 ---
 
@@ -131,13 +136,40 @@ Password strength is measured in bits of entropy:
 
 ---
 
-## Limitations
+## Recent Upgrades (v2.1.0)
+
+### Iteration 1: Audit & Cleanup
+- Expanded .gitignore for better exclusion (dist, node_modules, .DS_Store)
+- Fixed GitHub repository link (was pointing to wrong repo)
+- Removed dead footer links
+- Added "Made by MK — Musharraf Kazi" branding
+
+### Iteration 2: Core Logic Upgrade
+- Added **pronounceable password mode** — generates readable yet secure passwords
+- Uses CV (consonant-vowel) syllable patterns for natural flow
+- Positioned between random and passphrase modes
+- Example: `Krota-Fibu-Xami3`
+
+### Iteration 3: UX / Feel / Humanization
+- Added **password note/label feature** — tag passwords with reminders
+- Users can add notes like "for GitHub" or "work email"
+- Inline note editing in history panel
+- Helps users remember which password is for which service
+
+### Iteration 4: Accessibility & Polish
+- Implemented **toast notification system** for better feedback
+- Clear success/error messages when copying passwords
+- Auto-dismissing toasts with ARIA live region support
+- Replaced subtle button changes with explicit feedback
+
+---
 
 - **Browser Dependency**: Requires modern browser with Web Crypto API support
 - **Local Storage**: History cleared when browser data is deleted
 - **No Sync**: Settings don't sync across devices
 - **Character Set**: Limited to standard ASCII printable characters
 - **No Password Saving**: By design, this tool does NOT save passwords permanently. Session history only — we don't want to become a password manager (intentionally not solved)
+- **No Cloud Backup**: Notes and history are local-only (intentional limitation — keeps security simple)
 
 ---
 
