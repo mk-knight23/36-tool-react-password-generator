@@ -11,6 +11,21 @@ export function useGenerator() {
   }
 
   const generate = (config: PasswordConfig): string => {
+    // Add length validation
+    if (config.length < 4) {
+      console.warn('Password length too short. Minimum length is 4.');
+      return '';
+    }
+
+    // Add charset validation
+    if (!config.useUppercase &&
+      !config.useLowercase &&
+      !config.useNumbers &&
+      !config.useSymbols) {
+      console.warn('No character sets selected. Please select at least one.');
+      return '';
+    }
+
     let allowedChars = ''
     if (config.useUppercase) allowedChars += charSets.uppercase
     if (config.useLowercase) allowedChars += charSets.lowercase

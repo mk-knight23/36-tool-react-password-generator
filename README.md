@@ -1,265 +1,101 @@
-# VaultPass — Password Generator
+# VaultPass — Secure Password Generator
 
-A cryptographically secure password generator with a retro 90s terminal aesthetic. Built with Vue 3, TypeScript, and the browser's native Web Crypto API.
+A cryptographically secure, retro-themed password and passphrase generator built with Vue 3.
 
----
+![VaultPass Banner](https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=1200&q=80)
 
-## What It Does
+## 🛡️ Security First
 
-VaultPass generates strong, random passwords using cryptographically secure randomness (`window.crypto.getRandomValues()`). Unlike basic generators that use predictable `Math.random()`, this tool provides true randomness suitable for security-critical applications.
+- **Zero-Trust Generation**: Uses `window.crypto.getRandomValues()` for all entropy.
+- **Client-Side Only**: No data is ever transmitted or stored.
+- **Open Source**: Auditable code for maximum transparency.
 
-**When to use this tool:**
-- Creating new passwords for online accounts
-- Generating API keys or tokens
-- Testing password strength requirements
-- Educational demonstration of cryptography concepts
+## 🚀 Features
 
----
+- **Multiple Modes**: Generate standard passwords, XKCD-style passphrases, or pronounceable strings.
+- **Retro Aesthetic**: High-contrast, pixel-perfect UI inspired by 80s terminal systems.
+- **Accessibility**: Optimized for keyboard navigation and screen readers.
+- **Resilient**: Global error handling and input validation for all generation parameters.
+- **Performance**: Lightweight Vue 3 implementation with Pinia state management.
 
-## Inputs
+## 🛠️ Tech Stack
 
-| Input | Type | Range | Description |
-|-------|------|-------|-------------|
-| Mode | Toggle | Random/Pronounceable/Passphrase | Switch between generation modes |
-| Length | Number | 4-64 | Password character count (or word count for passphrase) |
-| Note | Text | Max 50 chars | Optional reminder of where password will be used |
-| Uppercase | Boolean | - | Include A-Z characters (Random mode) |
-| Lowercase | Boolean | - | Include a-z characters (Random mode) |
-| Numbers | Boolean | - | Include 0-9 digits (Random mode) |
-| Symbols | Boolean | - | Include special characters (!@#$%) (Random mode) |
+- **Framework**: Vue 3 (Composition API).
+- **State**: Pinia.
+- **Styling**: Tailwind CSS v3 (Custom Retro Theme).
+- **Icons**: Lucide Vue Next.
+- **Build**: Vite + TypeScript.
 
-### Generation Modes
-
-**Random Mode**: Pure cryptographic randomness with character sets you choose.
-
-**Pronounceable Mode**: Readable yet secure passwords using CV syllable patterns (e.g., `Krota-Fibu-Xami3`).
-
-**Passphrase Mode**: Memorable word combinations like `garden-tiger-forest-42` using a curated wordlist. One word is randomly capitalized and a number suffix is added for extra entropy.
-
----
-
-## Outputs
-
-| Output | Type | Description |
-|--------|------|-------------|
-| Password | String | Generated random password |
-| Strength | Score | Entropy-based security rating (0-4) |
-| Entropy | Number | Bits of entropy calculated |
-| Label | String | Visual strength label (Weak to Secure) |
-
----
-
-## Workflow Steps
-
-1. **Choose Mode** — Toggle between [RANDOM] or [PASSPHRASE] mode
-2. **Configure Options** — Set length and character types (or word count for passphrase)
-3. **Generate** — Click [GENERATE] or press CMD+ENTER
-4. **Review** — Check strength meter and entropy rating
-5. **Copy** — Click copy button or press CMD+C
-6. **Optional** — Download as .txt file or view session history
-
----
-
-## Stack Choice Rationale
-
-| Technology | Purpose |
-|------------|---------|
-| Vue 3 (Composition API) | Reactive state with minimal boilerplate |
-| TypeScript | Type safety for password configuration |
-| Vite | Fast HMR and optimized builds |
-| Tailwind CSS | Utility styling with custom retro classes |
-| Pinia | Persistent state for settings and history |
-| VueUse | Clipboard and browser utilities |
-| Web Crypto API | Cryptographically secure randomness |
-
----
-
-## Setup Steps
+## 📦 Setup & Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/mk-knight23/51-Password-Generator-React.git
-cd 51-Password-Generator-React
-
-# Install dependencies
+git clone <repo-url>
+cd 36-tool-vaultpass-secure-password-generator
 npm install
-
-# Start development server
 npm run dev
-
-# Build for production
-npm run build
 ```
 
----
+## 📐 Architecture
 
-## Keyboard Shortcuts
+- **Composables**: Modular generation logic separated by mode (`useGenerator`, `usePassphrase`, `usePronounceable`).
+- **Stores**: Global settings (Dark Mode, Audio) and usage statistics.
+- **Components**: Reusable UI primitives designed for a consistent retro feel.
 
-| Shortcut | Action |
-|----------|--------|
-| `CMD + Enter` | Generate new password |
-| `CMD + C` | Copy to clipboard |
-| `Space` | Toggle password visibility |
-| `CMD + D` | Toggle dark/light mode |
-
----
-
-## Security Details
-
-### Cryptographic Randomness
-
-All passwords are generated using `window.crypto.getRandomValues()`, which provides cryptographically secure random values:
-
-```typescript
-const array = new Uint32Array(length);
-window.crypto.getRandomValues(array);
-```
-
-### Entropy Calculation
-
-Password strength is measured in bits of entropy:
-
-| Entropy Range | Strength |
-|:-------------|:---------|
-| < 40 bits | Weak |
-| 40-60 bits | Fair |
-| 60-80 bits | Good |
-| 80-100 bits | Strong |
-| > 100 bits | Secure |
-
-### Privacy
-
-- All generation happens **client-side**
-- No data transmitted to any server
-- History stored locally in browser
-- No cookies or tracking
-
----
-
-## Recent Upgrades (v2.1.0)
-
-### Iteration 1: Audit & Cleanup
-- Expanded .gitignore for better exclusion (dist, node_modules, .DS_Store)
-- Fixed GitHub repository link (was pointing to wrong repo)
-- Removed dead footer links
-- Added "Made by MK — Musharraf Kazi" branding
-
-### Iteration 2: Core Logic Upgrade
-- Added **pronounceable password mode** — generates readable yet secure passwords
-- Uses CV (consonant-vowel) syllable patterns for natural flow
-- Positioned between random and passphrase modes
-- Example: `Krota-Fibu-Xami3`
-
-### Iteration 3: UX / Feel / Humanization
-- Added **password note/label feature** — tag passwords with reminders
-- Users can add notes like "for GitHub" or "work email"
-- Inline note editing in history panel
-- Helps users remember which password is for which service
-
-### Iteration 4: Accessibility & Polish
-- Implemented **toast notification system** for better feedback
-- Clear success/error messages when copying passwords
-- Auto-dismissing toasts with ARIA live region support
-- Replaced subtle button changes with explicit feedback
-
----
-
-- **Browser Dependency**: Requires modern browser with Web Crypto API support
-- **Local Storage**: History cleared when browser data is deleted
-- **No Sync**: Settings don't sync across devices
-- **Character Set**: Limited to standard ASCII printable characters
-- **No Password Saving**: By design, this tool does NOT save passwords permanently. Session history only — we don't want to become a password manager (intentionally not solved)
-- **No Cloud Backup**: Notes and history are local-only (intentional limitation — keeps security simple)
-
----
-
-## Project Structure
-
-```
-36-tool-vaultpass-secure-password-generator/
-├── design-system/
-│   └── MASTER.md              # Retro Pixel theme specification
-├── src/
-│   ├── components/
-│   │   ├── generator/
-│   │   │   └── GeneratorCore.vue  # Main generation UI
-│   │   ├── history/
-│   │   │   └── AuditLog.vue       # Password history panel
-│   │   └── ui/
-│   │       └── SettingsPanel.vue  # Theme and audio settings
-│   ├── composables/
-│   │   ├── useGenerator.ts       # Crypto generation logic
-│   │   ├── usePassphrase.ts      # Word-based passphrase generation
-│   │   ├── useStrength.ts        # Entropy calculation
-│   │   ├── useTheme.ts           # Theme management
-│   │   ├── useAudio.ts           # Sound effects
-│   │   └── useKeyboard.ts        # Keyboard shortcuts
-│   ├── stores/
-│   │   ├── vaultStore.ts         # Password history state
-│   │   ├── settings.ts           # User preferences
-│   │   └── stats.ts              # Usage statistics
-│   ├── types/
-│   │   └── index.ts              # TypeScript interfaces
-│   ├── App.vue                   # Root component
-│   ├── main.ts                   # Entry point
-│   └── style.css                 # Retro theme styles
-├── package.json
-├── tailwind.config.js
-└── README.md
-```
-
----
-
-## Design System
-
-This application follows a **Retro Pixel / 90s Utility** design theme:
-- VT323 pixel font for headers and UI
-- Terminal green (#33ff33) primary color
-- Sharp corners (no border-radius)
-- 3D beveled buttons
-- Scanline overlay effect
-- Blocky scrollbars and inputs
-
-See `design-system/MASTER.md` for complete design specifications.
-
----
-
-## Deployment
-
-This project is configured for deployment on three platforms:
-
-### GitHub Pages
-- **Workflow**: `.github/workflows/deploy.yml`
-- **Build Command**: `npm run build`
-- **Output Directory**: `dist`
-- **Trigger**: Push to `main` branch
-- **Action**: `actions/deploy-page@v4` with Vite static site generator
+## 🚀 Deployment
 
 ### Vercel
-- **Config**: `vercel.json`
-- **Framework**: Vite
-- **Build Command**: `npm run build`
-- **Output Directory**: `dist`
-- **Rewrites**: SPA fallback to `/index.html`
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/mk-knight23/36-tool-vaultpass-secure-password-generator)
+
+1. Push to GitHub
+2. Import to Vercel
+3. Deploy
 
 ### Netlify
-- **Config**: `netlify.toml`
-- **Build Command**: `npm run build`
-- **Publish Directory**: `dist`
-- **Redirects**: All paths to `/index.html` (SPA support)
+
+[![Netlify Deploy](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/mk-knight23/36-tool-vaultpass-secure-password-generator)
+
+1. Push to GitHub
+2. Import to Netlify
+3. Deploy
+
+### Local Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## 📁 Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_ANALYTICS_ENABLED=false
+VITE_EXPERIMENTAL_FEATURES=false
+```
+
+## 🖼️ Screenshots
+
+### Main Interface
+![Main Interface](https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=800&q=80)
+
+### Password Generation
+![Password Generation](https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80)
+
+### Retro Theme
+![Retro Theme](https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80)
+
+## 🤝 Roadmap
+
+- [ ] Browser extension version.
+- [ ] Offline-first PWA support.
+- [ ] Customizable wordlists for passphrases.
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-## Live Links
-
-| Platform | URL |
-|----------|-----|
-| **GitHub Pages** | https://mk-knight23.github.io/36-tool-react-password-generator/ |
-| **Vercel** | https://36-tool-react-password-generator.vercel.app/ |
-| **Netlify** | https://36-tool-react-password-generator.netlify.app/ |
-
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
+Made by [Musharraf Kazi](https://github.com/mk-knight23)

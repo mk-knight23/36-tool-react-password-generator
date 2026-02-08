@@ -53,7 +53,8 @@ function recordClick() {
             @click="openSettings"
             @click.capture="recordClick"
             class="retro-btn"
-            aria-label="Settings"
+            aria-label="Open system settings"
+            role="button"
           >
             <Keyboard :size="18" :stroke-width="2.5" />
           </button>
@@ -62,7 +63,8 @@ function recordClick() {
             target="_blank"
             rel="noopener noreferrer"
             class="retro-btn"
-            aria-label="View source on GitHub"
+            aria-label="View source code on GitHub"
+            role="link"
           >
             <Github :size="18" :stroke-width="2.5" />
           </a>

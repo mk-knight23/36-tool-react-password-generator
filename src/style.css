@@ -236,6 +236,11 @@
   .border-retro { border-color: var(--vault-border); }
   .border-retro-border { border-color: var(--vault-border); }
 
+  :focus-visible {
+    outline: 2px solid var(--retro-green, #4ade80);
+    outline-offset: 2px;
+  }
+
   /* Pixel text rendering */
   .pixel-text {
     font-family: 'VT323', monospace;
