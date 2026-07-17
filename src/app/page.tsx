@@ -31,7 +31,7 @@ const FEATURES: Array<{ icon: typeof KeyRound; title: string; body: string }> = 
   {
     icon: Dice5,
     title: "Uniform randomness",
-    body: "Every character comes from Web Crypto with rejection sampling, so no character is more likely than another. No Math.random anywhere.",
+    body: "Every character comes from Web Crypto with rejection sampling, so no character is more likely than another. No general-purpose random number generator is used for secrets.",
   },
   {
     icon: ScanSearch,
