@@ -16,5 +16,11 @@ export const CREATOR = {
   footerSentence: "Built and maintained by Kazi Musharraf. Open source for everyone.",
 } as const;
 
+/** Contact address for support, disclosure, and legal notices. */
+export const CONTACT_EMAIL = "kazi@reprime.com";
+
+/** Date the legal/policy pages were last reviewed (YYYY-MM-DD). */
+export const LAST_UPDATED = "2026-07-17";
+
 export const NOT_A_PASSWORD_MANAGER =
   "MK VaultPass is not a password manager. It generates secrets; it does not sync or store them for you. Save what you generate in a real password manager.";
