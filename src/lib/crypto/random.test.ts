@@ -12,14 +12,17 @@ import {
 
 describe("randomInt", () => {
   it("stays within [0, maxExclusive)", () => {
+    // 128k draws across ranges 1..64. Bounds/integer violations are collected
+    // and asserted once at the end — calling expect() per draw is both slow and
+    // unnecessary, since a single counter-example is enough to fail the test.
+    let violations = 0;
     for (let m = 1; m <= 64; m++) {
       for (let i = 0; i < 2000; i++) {
         const v = randomInt(m);
-        expect(v).toBeGreaterThanOrEqual(0);
-        expect(v).toBeLessThan(m);
-        expect(Number.isInteger(v)).toBe(true);
+        if (v < 0 || v >= m || !Number.isInteger(v)) violations++;
       }
     }
+    expect(violations).toBe(0);
   });
 
   it("always returns 0 for maxExclusive === 1", () => {
