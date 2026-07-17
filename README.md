@@ -1,108 +1,139 @@
-# 🚀 36-tool-react-password-generator (Collective Production Edition)
+# MK VaultPass
 
-## 💎 Overview
-Fully production-grade implementation of 36-tool-react-password-generator, refactored by the **69-Agent Opencode Collective**.
+A password and secret **generator** that runs entirely in your browser. Every
+value it produces is made on your device with the Web Crypto API and never
+leaves it. The point of the product is to make that boundary visible, testable,
+and documented rather than merely claimed.
 
-## 🛡️ Trust & Compliance
-- **CI/CD**: Automated GitHub Actions with Gitleaks security scans.
-- **Security**: Standardized [SECURITY.md](SECURITY.md) protocol.
-- **Design**: Opencode Premium Design Tokens integrated.
+**MK VaultPass is not a password manager.** It does not sync, and it does not
+store what you generate unless you explicitly turn on local history. Save what
+you generate in a real password manager.
 
-## 🏁 48-Hour Roadmap
-1. Initialize infrastructure via `.github/workflows`.
-2. Set your secrets in GitHub Environment settings.
-3. Deploy to production via Vercel/Docker.
+- Production: https://vaultpass.mkazi.live
+- Repository: https://github.com/mk-knight23/36-tool-react-password-generator
+- License: MIT
 
-![Evolution](https://img.shields.io/badge/Evolution-Live-brightgreen)
-![Phase 2](https://img.shields.io/badge/Phase-2-blue)
-![Score](https://img.shields.io/badge/Score-100%2F100-gold)
+![The MK VaultPass generator producing a 129-bit password with a live entropy ring and strength meter](docs/screenshots/generate.png)
 
-Part of the **60-Repo Evolution Project**.
+_Screenshot captured by the Playwright smoke test (`e2e/smoke.spec.ts`)._
 
-## 📋 Evolution Status
+## What it does
 
-| Phase | Status | Repos |
-|-------|--------|-------|
-| Phase 1 | ✅ Complete | 01-20 |
-| Phase 2 | 🔄 Active | 21-40 |
-| Phase 3 | ⏳ Pending | 41-60 |
+Nine generators, all local:
 
-## 🛠️ Tech Stack
+- **Password** — length 8–128, per-set toggles, "must include" and "exclude"
+  rules, exclude-ambiguous, and an optional guarantee of one character per set
+  (satisfied by rejection, never by biased splicing).
+- **Passphrase** — the bundled EFF large wordlist (7,776 words), 3–10 words,
+  separators, capitalization, appended digits.
+- **Pronounceable** — whole-syllable patterns (fixes the legacy bug that picked a
+  single character, often a space); entropy is a labelled estimate.
+- **PIN** — 4–12 digits with optional trivial-sequence rejection; entropy is
+  reported honestly (a 4-digit PIN is weak; device lockout is the real defence).
+- **UUID v4**, **random string** (named or custom alphabets), **API token**
+  (hex / base64url / prefixed), **recovery codes** (printable sheet), and
+  **Wi-Fi password** (WPA2/WPA3-aware, ≤63 chars).
 
-- **Framework:** Modern stack
-- **CI/CD:** 24/7 Continuous Evolution
-- **Deployment:** Multi-platform
+Plus a local **analyzer** (entropy, patterns, common-password check, policy
+compliance), a **policy builder/validator**, interactive **checklists**, an
+opt-in local **history** and **dashboard**, and a single AI explainer route that
+is designed so it cannot receive a secret.
 
-## 📦 What's Included
+## Why the boundary holds
 
-- ✅ Professional README
-- ✅ Complete EVOLUTION.md
-- ✅ 5 LinkedIn posts
-- ✅ 2 video scripts  
-- ✅ Podcast script
-- ✅ Architecture docs
-- ✅ API documentation
-- ✅ GitHub Actions workflow
-- ✅ Multi-platform deployment configs
+- All randomness comes from `crypto.getRandomValues` / `crypto.randomUUID`.
+  `Math.random` appears nowhere in `src/` (enforced by a unit test).
+- Uniform selection uses rejection sampling. A chi-squared test over 260k+ draws
+  guards against reintroduced modulo bias.
+- The default Content-Security-Policy is `connect-src 'self'`, so the browser can
+  only talk back to this origin. The Playwright smoke asserts zero fetch/XHR
+  during generation and that the secret never appears in any request (G3).
+- The AI route's request schema has no field that can carry a secret; a
+  client-side guard refuses secret-shaped questions before any network call, and
+  the server re-validates.
 
-## 🚀 Quick Start
+See `PRODUCT_SPEC.md`, `ARCHITECTURE.md`, `SECURITY.md`, and `PRIVACY.md`.
+
+## Tech stack
+
+Next.js (App Router, `src/`), TypeScript strict, Tailwind CSS v4,
+`lucide-react`, Zod for API validation, `idb` for the opt-in history store,
+Vitest + Testing Library for unit tests, Playwright for the smoke suite.
+
+## Getting started
 
 ```bash
-git clone https://github.com/mk-knight23/36-tool-react-password-generator.git
-cd 36-tool-react-password-generator
-npm install
-npm run dev
+pnpm install
+pnpm dev          # http://localhost:3000
 ```
 
-## 📊 Evolution Metrics
+The core product needs no environment variables and no API keys.
 
-| Metric | Score |
-|--------|-------|
-| Documentation | 20/20 |
-| CI/CD | 20/20 |
-| Deployment | 20/20 |
-| Code Quality | 20/20 |
-| Security | 20/20 |
-| **Total** | **100/100** |
+## Environment variables
 
-## 🌐 Live URLs
+Copy `.env.example` to `.env.local`. Every variable is optional.
 
-| Platform | URL |
-|----------|-----|
-| Vercel | https://36-tool-react-password-generator.vercel.app |
-| Netlify | https://36-tool-react-password-generator.netlify.app |
-| Firebase | https://36-tool-react-password-generator.web.app |
+| Variable | Purpose | Default |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG/sitemap origin | `https://vaultpass.mkazi.live` |
+| `NEXT_PUBLIC_GTM_ID` | GTM container id; unset ⇒ analytics fully off | unset |
+| `NEXT_PUBLIC_ADSENSE_ENABLED` | Ad slot flag (prepared, off) | `false` |
+| `AI_GATEWAY_API_KEY` | Vercel AI Gateway key for the AI route | unset |
+| `AI_MODEL` / `AI_MODEL_QUALITY` | Gateway model slugs | `anthropic/claude-haiku-4.5` / `…sonnet-4-5` |
 
-## 📁 Structure
+With none set, generation, analysis, policies, checklists, history, and the
+dashboard all work; the AI route degrades to its built-in non-AI explanations.
 
-```
-├── .github/workflows/     # CI/CD workflows
-├── marketing/             # Marketing content
-│   ├── linkedin/         # 5 LinkedIn posts
-│   ├── videos/           # 2 video scripts
-│   └── audio/            # Podcast script
-├── docs/                 # Documentation
-│   ├── architecture/     # System design
-│   └── api/              # API docs
-├── vercel.json           # Vercel config
-├── netlify.toml          # Netlify config
-├── firebase.json         # Firebase config
-├── README.md             # This file
-└── EVOLUTION.md          # Evolution history
+## Testing
+
+```bash
+pnpm typecheck        # tsc --noEmit
+pnpm lint             # eslint
+pnpm test             # vitest run (228 tests)
+pnpm test:coverage    # vitest run --coverage
+pnpm build            # next build
+pnpm build && pnpm test:e2e   # Playwright smoke on port 3102
 ```
 
-## 📄 License
+Latest local results and coverage are recorded in `TEST_REPORT.md`.
 
-MIT License
+## Architecture, at a glance
 
----
+Generation is 100% client-side. The server renders content (guides, use-cases,
+docs) and hosts one AI route (`POST /api/ai/explain`) that validates input and
+cannot receive secrets. There is no database and no server-side data storage;
+the only persistence is in the visitor's browser (IndexedDB for opt-in history,
+localStorage for tiny non-secret preferences). Details in `ARCHITECTURE.md`,
+`AI_ARCHITECTURE.md`, and `DATABASE.md`.
 
-🦾 **Evolved with OpenClaw** | 2026-03-06
+## Deployment
 
-## Security
+Deploys to Vercel as a standard Next.js App Router app. Security headers ship via
+`next.config.ts`. See `DEPLOYMENT.md` for the checklist and the production
+verification steps. Deployment is orchestrator-owned; squad agents do not deploy.
 
-This project follows security best practices:
-- No hardcoded credentials
-- Dependency scanning enabled
-- Security headers configured
-- Regular security audits performed
+## Privacy
+
+Nothing you generate leaves your device. Analytics is consent-gated and off by
+default, and may only ever receive event names, mode names, and bucketed
+counts/durations — never a generated value. Full detail in `PRIVACY.md`.
+
+## Roadmap
+
+- QR rendering for Wi-Fi passwords (local-only, with a clear note).
+- Optional local breach-check tooling beyond the bundled common-password list.
+- Additional export formats for recovery sheets.
+
+These are intentionally out of v1 scope (see `PRODUCT_SPEC.md` §3).
+
+## Author
+
+Built and maintained by **Kazi Musharraf** — AI Engineer, Full-Stack Developer,
+Open-Source Builder.
+
+- GitHub: https://github.com/mk-knight23
+- Portfolio: https://www.mkazi.live
+
+## License
+
+MIT © 2026 Kazi Musharraf. See `LICENSE`.
