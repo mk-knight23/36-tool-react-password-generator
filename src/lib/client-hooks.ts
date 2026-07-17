@@ -13,6 +13,13 @@ import {
   subscribeCounts,
   type ModeCounts,
 } from "@/lib/storage";
+import {
+  EMPTY_AI_QUOTA,
+  getAiQuotaSnapshot,
+  subscribeAiQuota,
+  type AiQuota,
+} from "@/lib/ai/quota";
+import { getByokSnapshot, subscribeByok } from "@/lib/ai/byok";
 
 /**
  * Client-only reactive reads. Each uses `useSyncExternalStore` so the value is
@@ -26,6 +33,19 @@ export function useSettings(): Settings {
 
 export function useCounts(): ModeCounts {
   return useSyncExternalStore(subscribeCounts, getCountsSnapshot, () => EMPTY_COUNTS);
+}
+
+export function useAiQuota(): AiQuota {
+  return useSyncExternalStore(subscribeAiQuota, getAiQuotaSnapshot, () => EMPTY_AI_QUOTA);
+}
+
+/** Whether a BYOK key is set. Returns the key's presence, never its value. */
+export function useHasByokKey(): boolean {
+  return useSyncExternalStore(
+    subscribeByok,
+    () => getByokSnapshot() !== null,
+    () => false,
+  );
 }
 
 const emptySubscribe = () => () => {};
