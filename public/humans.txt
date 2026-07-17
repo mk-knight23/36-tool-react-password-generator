@@ -1,0 +1,15 @@
+/* TEAM */
+Author: Kazi Musharraf
+Role: AI Engineer, Full-Stack Developer, Open-Source Builder
+GitHub: https://github.com/mk-knight23
+Portfolio: https://www.mkazi.live
+Contact: kazi@reprime.com
+
+/* SITE */
+Name: MK VaultPass
+Description: A 100% local, zero-egress password and secret generator toolkit. Not a password manager.
+Source: https://github.com/mk-knight23/36-tool-react-password-generator
+License: MIT (Copyright 2026 Kazi Musharraf)
+Standards: HTML5, CSS, TypeScript
+Components: Next.js, React, Tailwind CSS
+Language: English

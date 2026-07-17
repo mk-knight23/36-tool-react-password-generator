@@ -1,0 +1,11 @@
+# Security policy for MK VaultPass
+# https://vaultpass.mkazi.live
+
+Contact: mailto:kazi@reprime.com
+Expires: 2027-07-17T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://vaultpass.mkazi.live/.well-known/security.txt
+Policy: https://vaultpass.mkazi.live/terms
+
+# If you find a vulnerability, please report it privately by email rather than
+# opening a public issue, so it can be fixed before it is widely known.

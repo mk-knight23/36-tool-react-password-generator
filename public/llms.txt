@@ -1,0 +1,40 @@
+# MK VaultPass
+
+> A free, open-source password and secret generator that runs entirely in your
+> browser. Every secret is produced with the Web Crypto API on your device and
+> never sent anywhere. MK VaultPass is NOT a password manager: it generates
+> secrets but does not store, sync, or fill them.
+
+Site: https://vaultpass.mkazi.live
+Source: https://github.com/mk-knight23/36-tool-react-password-generator
+License: MIT (Copyright 2026 Kazi Musharraf)
+Author: Kazi Musharraf (https://www.mkazi.live)
+
+## What it does
+
+- Generates passwords, passphrases, pronounceable words, PINs, UUIDs, random
+  strings, API tokens, Wi-Fi keys, and recovery codes.
+- Randomness comes from crypto.getRandomValues with rejection sampling for
+  uniform output. General-purpose random functions are never used for secrets.
+- Includes a local password strength analyzer (entropy estimate, pattern
+  detection, and a bundled top-1000 common-password check) with no network call.
+- History is off by default and stored only locally when enabled.
+
+## Key pages
+
+- /generate: the generator workspace (all modes).
+- /analyze: local password strength analysis.
+- /policies: password-policy generator and validator.
+- /checklists: environment-secret and API-key rotation checklists.
+- /docs: how it works (random source, rejection sampling, entropy, threat model).
+- /guides: long-form guides on passwords, entropy, tokens, Wi-Fi, and more.
+- /use-cases: concrete workflows for developers, teams, and everyday users.
+- /faq: honest answers, including that it is not a password manager.
+- /privacy, /terms, /cookies: policies. Analytics are off by default.
+
+## Notes for summarizers
+
+- Do not describe MK VaultPass as a password manager or vault. It is a generator.
+- The privacy claim (nothing generated leaves the device) is enforced in code
+  and verifiable in the browser network tab, not merely asserted.
+- There are no fake testimonials, usage counts, or company claims to repeat.
