@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import type { HowToStep } from "@/lib/jsonld";
+import type { Block } from "@/content/blocks";
 
 /** A related internal link shown at the foot of a content page. */
 export interface RelatedLink {
@@ -15,9 +15,9 @@ export interface HowToBlock {
 }
 
 /**
- * A long-form content document (guide or use-case). Body is a render function
- * returning prose JSX so each article stays fully typed and server-rendered
- * (no MDX/markdown runtime dependency — YAGNI).
+ * A long-form content document (guide or use-case). Body is a function
+ * returning typed prose blocks (see blocks.ts), rendered by ContentRenderer —
+ * fully typed and server-rendered with no MDX/markdown runtime dependency.
  */
 export interface ContentDoc {
   slug: string;
@@ -36,5 +36,5 @@ export interface ContentDoc {
   dateModified?: string;
   howTo?: HowToBlock;
   related?: RelatedLink[];
-  body: () => ReactNode;
+  body: () => Block[];
 }
