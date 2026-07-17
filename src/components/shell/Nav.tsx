@@ -6,20 +6,8 @@ import { usePathname } from "next/navigation";
 import { KeyRound, Menu, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { SITE } from "@/lib/site";
+import { NAV_LINKS } from "@/lib/nav";
 import { ThemeToggle } from "./ThemeToggle";
-
-export interface NavLink {
-  href: string;
-  label: string;
-}
-
-export const NAV_LINKS: NavLink[] = [
-  { href: "/generate", label: "Generate" },
-  { href: "/analyze", label: "Analyze" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/history", label: "History" },
-  { href: "/settings", label: "Settings" },
-];
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";

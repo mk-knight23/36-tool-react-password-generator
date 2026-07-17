@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { FileQuestion } from "lucide-react";
-import { NAV_LINKS } from "@/components/shell/Nav";
+import { NAV_LINKS } from "@/lib/nav";
 
 export default function NotFound() {
   return (

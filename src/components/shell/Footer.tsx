@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { Github, Globe, KeyRound } from "lucide-react";
 import { SITE, CREATOR, NOT_A_PASSWORD_MANAGER } from "@/lib/site";
-
-const PRODUCT_LINKS = [
-  { href: "/generate", label: "Generate" },
-  { href: "/analyze", label: "Analyze" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/history", label: "History" },
-  { href: "/settings", label: "Settings" },
-];
+import { NAV_LINKS as PRODUCT_LINKS } from "@/lib/nav";
 
 /**
  * Footer present on every route. The creator sentence is exact and
