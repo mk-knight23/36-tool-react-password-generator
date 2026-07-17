@@ -43,3 +43,27 @@ export function scheduleClipboardClear(
   }, delaySeconds * 1000);
   return () => window.clearTimeout(timer);
 }
+
+// A single active auto-clear timer at a time. Copying a second secret cancels
+// the first pending wipe so we never clear a fresh copy prematurely.
+let activeCancel: (() => void) | null = null;
+
+/**
+ * Arm the clipboard auto-clear, cancelling any previously armed clear. Returns
+ * the number of seconds until the wipe (0 when auto-clear is disabled).
+ */
+export function armClipboardAutoClear(
+  delaySeconds: number,
+  onCleared?: () => void,
+): number {
+  if (activeCancel) {
+    activeCancel();
+    activeCancel = null;
+  }
+  if (delaySeconds <= 0) return 0;
+  activeCancel = scheduleClipboardClear(delaySeconds, () => {
+    activeCancel = null;
+    onCleared?.();
+  });
+  return delaySeconds;
+}
