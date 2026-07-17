@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analyzer } from "@/components/analyze/Analyzer";
+import { AiExplainPanel } from "@/components/ai/AiExplainPanel";
 
 export const metadata: Metadata = {
   title: "Analyze password strength",
@@ -20,6 +21,9 @@ export default function AnalyzePage() {
         </p>
       </header>
       <Analyzer />
+      <div className="mt-6">
+        <AiExplainPanel />
+      </div>
     </div>
   );
 }

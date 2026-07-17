@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Download, ShieldAlert, Trash2, Upload } from "lucide-react";
+import { Download, KeyRound, ShieldAlert, Trash2, Upload } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -16,7 +16,8 @@ import {
   type AutoClearDelay,
   type ConsentState,
 } from "@/lib/settings";
-import { useSettings, useHydrated } from "@/lib/client-hooks";
+import { useSettings, useHydrated, useHasByokKey } from "@/lib/client-hooks";
+import { saveByokKey, clearAiLocalData } from "@/lib/ai/byok";
 import {
   exportData,
   importData,
@@ -53,6 +54,8 @@ export function SettingsView() {
   const { toast } = useToast();
   const hydrated = useHydrated();
   const settings = useSettings();
+  const hasByok = useHasByokKey();
+  const [byokInput, setByokInput] = useState("");
   const [usage, setUsage] = useState<StorageUsage | null>(null);
   const [enableHistoryOpen, setEnableHistoryOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
@@ -112,10 +115,24 @@ export function SettingsView() {
 
   const onClearAll = async () => {
     await clearAllData();
+    clearAiLocalData();
     saveSettings({ ...DEFAULT_SETTINGS });
+    setByokInput("");
     refreshUsage();
     setClearOpen(false);
     toast("All local data cleared from this browser.", "success");
+  };
+
+  const onSaveByok = () => {
+    saveByokKey(byokInput);
+    setByokInput("");
+    toast(byokInput.trim() ? "Saved your key on this device." : "Cleared your key.", "success");
+  };
+
+  const onClearByok = () => {
+    saveByokKey("");
+    setByokInput("");
+    toast("Cleared your key from this device.", "info");
   };
 
   return (
@@ -192,6 +209,55 @@ export function SettingsView() {
               Decline
             </Button>
           </div>
+        </div>
+      </Card>
+
+      {/* AI (BYOK) */}
+      <Card as="section" className="flex flex-col gap-4">
+        <SectionHeading title="AI explanations" />
+        <p className="text-sm text-fg-muted">
+          The Analyze page can answer general security questions using AI. It
+          works without any setup where the service is configured, with a small
+          daily limit. The password you analyze is never sent, and a question
+          that looks like a secret is blocked before it leaves your browser.
+        </p>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="byok-key" className="text-sm font-medium text-fg">
+            Your own AI gateway key <span className="font-normal text-fg-muted">(optional)</span>
+          </label>
+          <input
+            id="byok-key"
+            type="password"
+            value={byokInput}
+            onChange={(e) => setByokInput(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder={hasByok ? "A key is saved on this device" : "Paste a Vercel AI Gateway key"}
+            className="rounded-md border border-border-strong bg-surface px-3 py-2 font-mono text-sm text-fg placeholder:text-fg-faint focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+          />
+          <p className="text-xs text-fg-muted">
+            Stored only in this browser and sent only to VaultPass&apos;s own AI
+            route as a request header to authenticate your calls. It is never
+            logged on the server, never included in Analytics or Export, and is
+            removed by &ldquo;Clear all data&rdquo;. Using your own key lifts the
+            daily limit.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="secondary" onClick={onSaveByok} disabled={!byokInput.trim()}>
+            <KeyRound size={16} strokeWidth={1.75} aria-hidden="true" />
+            Save key
+          </Button>
+          {hasByok ? (
+            <>
+              <Button variant="ghost" onClick={onClearByok}>
+                Remove key
+              </Button>
+              <span className="text-xs text-success">A key is saved on this device.</span>
+            </>
+          ) : null}
         </div>
       </Card>
 
