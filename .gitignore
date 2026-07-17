@@ -26,3 +26,6 @@ Thumbs.db
 
 # Vercel
 .vercel
+
+# Legacy reference copies (not part of v2 build)
+_legacy_reference/
