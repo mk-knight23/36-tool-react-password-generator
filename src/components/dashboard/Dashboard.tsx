@@ -6,14 +6,8 @@ import { BarChart3, Database, History } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { MODE_LABELS } from "@/lib/generators";
 import { GENERATOR_MODES } from "@/lib/generators/types";
-import {
-  loadCounts,
-  totalGenerations,
-  getStorageUsage,
-  type ModeCounts,
-  type StorageUsage,
-} from "@/lib/storage";
-import { loadSettings } from "@/lib/settings";
+import { totalGenerations, getStorageUsage, type StorageUsage } from "@/lib/storage";
+import { useCounts, useSettings, useHydrated } from "@/lib/client-hooks";
 
 function formatBytes(bytes: number | null): string {
   if (bytes === null) return "unknown";
@@ -30,17 +24,18 @@ function formatBytes(bytes: number | null): string {
  * empty state (STANDARDS §3, PRODUCT_SPEC §5.13).
  */
 export function Dashboard() {
-  const [counts, setCounts] = useState<ModeCounts | null>(null);
+  const hydrated = useHydrated();
+  const counts = useCounts();
+  const { historyEnabled } = useSettings();
   const [usage, setUsage] = useState<StorageUsage | null>(null);
-  const [historyEnabled, setHistoryEnabled] = useState(false);
 
+  // IndexedDB usage is async, so setState here runs in a promise callback (not
+  // synchronously in the effect body).
   useEffect(() => {
-    setCounts(loadCounts());
-    setHistoryEnabled(loadSettings().historyEnabled);
     void getStorageUsage().then(setUsage);
   }, []);
 
-  if (!counts) {
+  if (!hydrated) {
     return (
       <div
         className="h-64 rounded-lg border border-border bg-surface-sunken"

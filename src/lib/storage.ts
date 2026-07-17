@@ -48,12 +48,40 @@ export function loadCounts(): ModeCounts {
 }
 
 function saveCounts(counts: ModeCounts): void {
+  notifyCounts(counts);
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(COUNTS_KEY, JSON.stringify(counts));
   } catch {
     // ignore
   }
+}
+
+/**
+ * Reactive snapshot store for the dashboard, read via `useSyncExternalStore`.
+ * Keeps a single cached object so snapshots are reference-stable between
+ * renders; `saveCounts` (the only writer) refreshes it and notifies subscribers.
+ */
+export const EMPTY_COUNTS: ModeCounts = Object.freeze(emptyCounts()) as ModeCounts;
+
+let countsCache: ModeCounts | null = null;
+const countsListeners = new Set<() => void>();
+
+function notifyCounts(counts: ModeCounts): void {
+  countsCache = counts;
+  countsListeners.forEach((listener) => listener());
+}
+
+export function getCountsSnapshot(): ModeCounts {
+  if (countsCache === null) countsCache = loadCounts();
+  return countsCache;
+}
+
+export function subscribeCounts(callback: () => void): () => void {
+  countsListeners.add(callback);
+  return () => {
+    countsListeners.delete(callback);
+  };
 }
 
 export function incrementCount(mode: GeneratorMode, by = 1): ModeCounts {
@@ -193,6 +221,7 @@ export async function importData(bundle: ExportBundle): Promise<void> {
 }
 
 export async function clearAllData(): Promise<void> {
+  notifyCounts(emptyCounts());
   if (typeof window !== "undefined") {
     try {
       window.localStorage.removeItem(COUNTS_KEY);

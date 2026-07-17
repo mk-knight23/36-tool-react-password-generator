@@ -37,6 +37,7 @@ export function loadSettings(): Settings {
 }
 
 export function saveSettings(settings: Settings): void {
+  notifySettings(settings);
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(settings));
@@ -46,10 +47,37 @@ export function saveSettings(settings: Settings): void {
 }
 
 export function clearSettings(): void {
+  notifySettings({ ...DEFAULT_SETTINGS });
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(KEY);
   } catch {
     // ignore
   }
+}
+
+/**
+ * Reactive snapshot store so client components can read settings with
+ * `useSyncExternalStore` (hydration-safe, no setState-in-effect). The cache is
+ * the single source the React tree observes; writers call `saveSettings`, which
+ * updates it and notifies subscribers.
+ */
+let settingsCache: Settings | null = null;
+const settingsListeners = new Set<() => void>();
+
+function notifySettings(next: Settings): void {
+  settingsCache = next;
+  settingsListeners.forEach((listener) => listener());
+}
+
+export function getSettingsSnapshot(): Settings {
+  if (settingsCache === null) settingsCache = loadSettings();
+  return settingsCache;
+}
+
+export function subscribeSettings(callback: () => void): () => void {
+  settingsListeners.add(callback);
+  return () => {
+    settingsListeners.delete(callback);
+  };
 }

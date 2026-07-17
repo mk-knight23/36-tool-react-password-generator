@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { History, Search, ShieldAlert, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -12,6 +12,7 @@ import { IconButton } from "@/components/ui/IconButton";
 import { useToast } from "@/components/ui/Toast";
 import { MODE_LABELS } from "@/lib/generators";
 import { loadSettings, saveSettings } from "@/lib/settings";
+import { useSettings, useHydrated } from "@/lib/client-hooks";
 import {
   listHistory,
   deleteHistoryEntry,
@@ -36,31 +37,26 @@ function formatDate(ms: number): string {
  */
 export function HistoryView() {
   const { toast } = useToast();
-  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const hydrated = useHydrated();
+  const { historyEnabled: enabled } = useSettings();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [query, setQuery] = useState("");
   const [enableOpen, setEnableOpen] = useState(false);
   const [wipeOpen, setWipeOpen] = useState(false);
 
-  const refresh = useCallback(async () => {
-    try {
-      setEntries(await listHistory());
-    } catch {
-      setEntries([]);
-    }
-  }, []);
-
+  // Load entries whenever history is (or becomes) enabled. `setEntries` is
+  // passed as the promise callback, so it never runs synchronously in the
+  // effect body.
   useEffect(() => {
-    const s = loadSettings();
-    setEnabled(s.historyEnabled);
-    if (s.historyEnabled) void refresh();
-  }, [refresh]);
+    if (!enabled) return;
+    listHistory()
+      .then(setEntries)
+      .catch(() => setEntries([]));
+  }, [enabled]);
 
   const enableHistory = () => {
     saveSettings({ ...loadSettings(), historyEnabled: true });
-    setEnabled(true);
     setEnableOpen(false);
-    void refresh();
     toast("History is on. New generations will be saved on this device.", "success");
   };
 
@@ -81,7 +77,7 @@ export function HistoryView() {
     setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, note } : e)));
   };
 
-  if (enabled === null) {
+  if (!hydrated) {
     return <div className="h-64 rounded-lg border border-border bg-surface-sunken" aria-hidden="true" />;
   }
 

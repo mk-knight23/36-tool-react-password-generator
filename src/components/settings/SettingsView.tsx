@@ -10,13 +10,13 @@ import { SelectField } from "@/components/ui/Field";
 import { ThemeToggle } from "@/components/shell/ThemeToggle";
 import { useToast } from "@/components/ui/Toast";
 import {
-  loadSettings,
   saveSettings,
   DEFAULT_SETTINGS,
   type Settings,
   type AutoClearDelay,
   type ConsentState,
 } from "@/lib/settings";
+import { useSettings, useHydrated } from "@/lib/client-hooks";
 import {
   exportData,
   importData,
@@ -51,7 +51,8 @@ function formatBytes(bytes: number | null): string {
  */
 export function SettingsView() {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const hydrated = useHydrated();
+  const settings = useSettings();
   const [usage, setUsage] = useState<StorageUsage | null>(null);
   const [enableHistoryOpen, setEnableHistoryOpen] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
@@ -59,19 +60,17 @@ export function SettingsView() {
 
   const refreshUsage = () => void getStorageUsage().then(setUsage);
 
+  // IndexedDB usage estimate is async, so setState runs in a promise callback.
   useEffect(() => {
-    setSettings(loadSettings());
     refreshUsage();
   }, []);
 
-  if (!settings) {
+  if (!hydrated) {
     return <div className="h-96 rounded-lg border border-border bg-surface-sunken" aria-hidden="true" />;
   }
 
   const update = (patch: Partial<Settings>) => {
-    const next = { ...settings, ...patch };
-    setSettings(next);
-    saveSettings(next);
+    saveSettings({ ...settings, ...patch });
     track("settings_changed", { keys: Object.keys(patch).join(",") });
   };
 
@@ -104,7 +103,6 @@ export function SettingsView() {
       const text = await file.text();
       const bundle = JSON.parse(text) as ExportBundle;
       await importData(bundle);
-      setSettings(loadSettings());
       refreshUsage();
       toast("Imported data from the file.", "success");
     } catch (e) {
@@ -114,9 +112,7 @@ export function SettingsView() {
 
   const onClearAll = async () => {
     await clearAllData();
-    const reset = { ...DEFAULT_SETTINGS };
-    saveSettings(reset);
-    setSettings(reset);
+    saveSettings({ ...DEFAULT_SETTINGS });
     refreshUsage();
     setClearOpen(false);
     toast("All local data cleared from this browser.", "success");

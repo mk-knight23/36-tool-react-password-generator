@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -14,34 +14,44 @@ import {
   PASSWORD_LENGTH,
 } from "@/lib/generators/password";
 import { classifyStrength } from "@/lib/analysis/strength";
+import { useHydrated } from "@/lib/client-hooks";
 import type { GenerationResult } from "@/lib/generators/types";
+
+const DEMO_DEFAULT_LENGTH = 20;
 
 /**
  * A self-contained password demo for the landing page. It runs the real
  * generator (no mock), so a first-time visitor sees a genuine, working result
  * produced entirely in their browser. It intentionally records nothing to
  * storage — the landing demo is a preview, not a tracked generation.
+ *
+ * The first value is produced only after hydration (crypto output differs from
+ * any server render), so during hydration the server and client markup match.
  */
 export function MiniGenerator() {
-  const [length, setLength] = useState(20);
+  const hydrated = useHydrated();
+  const [length, setLength] = useState(DEMO_DEFAULT_LENGTH);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
-  const regenerate = useCallback((len: number) => {
-    setResult(generatePassword({ ...DEFAULT_PASSWORD_OPTIONS, length: len }));
-  }, []);
+  // The shown value is either the last explicit generation or, before the user
+  // interacts, a first value produced only after hydration (so server and
+  // client markup match). Derived — no ref, no setState-in-effect.
+  const shown = useMemo<GenerationResult | null>(() => {
+    if (result) return result;
+    if (!hydrated) return null;
+    return generatePassword({ ...DEFAULT_PASSWORD_OPTIONS, length: DEMO_DEFAULT_LENGTH });
+  }, [result, hydrated]);
 
-  // Produce a first value after mount so server and client markup match.
-  useEffect(() => {
-    regenerate(length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const regenerate = (len: number) => {
+    setResult(generatePassword({ ...DEFAULT_PASSWORD_OPTIONS, length: len }));
+  };
 
   const onLength = (len: number) => {
     setLength(len);
     regenerate(len);
   };
 
-  const strength = result ? classifyStrength(result.entropyBits, false) : null;
+  const strength = shown ? classifyStrength(shown.entropyBits, false) : null;
 
   return (
     <div className="flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-1 sm:p-6">
@@ -53,13 +63,13 @@ export function MiniGenerator() {
       </div>
 
       <div className="min-h-[76px]">
-        {result ? (
+        {shown ? (
           <SecretOutput
-            value={result.value}
+            value={shown.value}
             what="password"
             announce={
               strength
-                ? `New password generated, ${Math.round(result.entropyBits)} bits, ${strength.label}`
+                ? `New password generated, ${Math.round(shown.entropyBits)} bits, ${strength.label}`
                 : undefined
             }
           />
@@ -71,9 +81,9 @@ export function MiniGenerator() {
         )}
       </div>
 
-      {result && strength ? (
+      {shown && strength ? (
         <StrengthBar
-          bits={result.entropyBits}
+          bits={shown.entropyBits}
           level={strength.level}
           label={strength.label}
         />
