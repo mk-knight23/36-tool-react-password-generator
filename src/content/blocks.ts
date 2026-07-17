@@ -23,6 +23,14 @@ export function slugifyHeading(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Strips the inline markup syntax to plain text (for JSON-LD answer fields). */
+export function toPlainText(text: string): string {
+  return text
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+}
+
 /** Rough word count across a block list — powers "N min read" estimates. */
 export function countWords(blocks: Block[]): number {
   let words = 0;
