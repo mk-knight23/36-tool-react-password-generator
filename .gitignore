@@ -1,31 +1,56 @@
-# Dependencies
-node_modules
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Build output
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+/test-results
+/playwright-report
+/.playwright
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
 dist
-*.local
 
-# Editor
-.vscode
-.idea
+# misc
+.DS_Store
+Thumbs.db
+*.pem
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
+# editor
+.vscode
+.idea
 
-# TypeScript
-*.tsbuildinfo
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Environment
+# env files (commit only the example)
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+!.env.example
 
-# Vercel
+# vercel
 .vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
 # Legacy reference copies (not part of v2 build)
 _legacy_reference/
