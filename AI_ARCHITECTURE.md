@@ -126,7 +126,17 @@ reaches analytics (STANDARDS §6, PRODUCT_SPEC §7).
 
 Unit tests cover the security-critical logic: `secret-guard.test.ts` (secret
 shapes vs. real questions), `schema.test.ts` (enum/strictObject/guard/length),
-`rate-limit.test.ts`, `prompt.test.ts` (policy rendering), `quota.test.ts`. The
-route's degraded path is verified at runtime (no credential → `503
-ai_unavailable`). A Playwright zero-egress assertion for AI flows is tracked
-with the broader e2e job (PRODUCT_SPEC G3).
+`rate-limit.test.ts`, `prompt.test.ts` (policy rendering), `quota.test.ts`.
+
+The route handler itself is guarded by an integration test
+(`src/app/api/ai/explain/route.test.ts`) that drives `POST` directly (no live
+server, no network) and asserts each non-gateway path: `503 ai_unavailable`
+with no credential, `422 secret_rejected` (with no echo of the offending
+value), `400` for smuggled fields / bad enum / non-JSON, `405` for `GET`, and
+`429` with `Retry-After` after the burst capacity, including per-client
+isolation. The success (`200`) and gateway-error (`502`) paths require a real
+credential and outbound call, so they are covered by runtime verification: with
+no credential the route returns `503`, a wrong BYOK key returns a safe `502`
+`ai_error` (the key is never echoed or logged), and the `/analyze` panel renders
+the labeled built-in explanation. A Playwright zero-egress assertion for AI
+flows remains tracked with the broader e2e job (PRODUCT_SPEC G3).
