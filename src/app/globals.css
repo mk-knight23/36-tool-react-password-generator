@@ -1,26 +1,192 @@
 @import "tailwindcss";
 
+/* Dark mode = data-theme attribute (set pre-hydration; defaults to system) */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-sunken: #EEF2F7;
+  --surface-raised: #FFFFFF;
+  --fg: #0F172A;
+  --fg-muted: #475569;
+  --fg-faint: #64748B;
+  --accent: #0369A1;
+  --accent-hover: #075985;
+  --accent-fill: #0369A1;
+  --on-accent: #FFFFFF;
+  --accent-soft: #E0F2FE;
+  --border: #E2E8F0;
+  --border-strong: #64748B;
+  --ring-c: #0369A1;
+  --success: #15803D;
+  --warning: #A16207;
+  --danger: #B91C1C;
+  --danger-fill: #DC2626;
+  --on-danger: #FFFFFF;
+  --scrim: rgb(2 6 23 / 0.55);
+  --strength-0: #B91C1C;
+  --strength-1: #C2410C;
+  --strength-2: #A16207;
+  --strength-3: #15803D;
+  --strength-4: #0369A1;
+}
+
+[data-theme="dark"] {
+  --bg: #0B1220;
+  --surface: #121A2B;
+  --surface-sunken: #0E1523;
+  --surface-raised: #1A2439;
+  --fg: #E6EBF2;
+  --fg-muted: #94A3B8;
+  --fg-faint: #7C8BA1;
+  --accent: #38BDF8;
+  --accent-hover: #7DD3FC;
+  --accent-fill: #0EA5E9;
+  --on-accent: #0B1220;
+  --accent-soft: #0C2D42;
+  --border: #24304A;
+  --border-strong: #64748B;
+  --ring-c: #38BDF8;
+  --success: #4ADE80;
+  --warning: #FBBF24;
+  --danger: #F87171;
+  --danger-fill: #DC2626;
+  --on-danger: #FFFFFF;
+  --scrim: rgb(0 0 0 / 0.6);
+  --strength-0: #F87171;
+  --strength-1: #FB923C;
+  --strength-2: #FBBF24;
+  --strength-3: #4ADE80;
+  --strength-4: #38BDF8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors — usable as bg-bg, text-fg, border-border-strong, text-strength-3, etc. */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-faint: var(--fg-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fill: var(--accent-fill);
+  --color-on-accent: var(--on-accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring-c);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-danger-fill: var(--danger-fill);
+  --color-on-danger: var(--on-danger);
+  --color-scrim: var(--scrim);
+  --color-strength-0: var(--strength-0);
+  --color-strength-1: var(--strength-1);
+  --color-strength-2: var(--strength-2);
+  --color-strength-3: var(--strength-3);
+  --color-strength-4: var(--strength-4);
+
+  /* Typography — system stacks only (CSP: no external font origins) */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Radii */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.08);
+  --shadow-2: 0 4px 12px rgb(15 23 42 / 0.10), 0 2px 4px rgb(15 23 42 / 0.06);
+  --shadow-3: 0 16px 40px rgb(15 23 42 / 0.18);
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 240ms;
+  --duration-ring: 400ms;
+  --ease-enter: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Reduced motion: components inherit compliance from zeroed tokens */
+@media (prefers-reduced-motion: reduce) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --duration-fast: 1ms;
+    --duration-base: 1ms;
+    --duration-slow: 1ms;
+    --duration-ring: 1ms;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }
 
+/* prefers-contrast: more bumps decorative borders to functional strength */
+@media (prefers-contrast: more) {
+  :root {
+    --border: var(--border-strong);
+  }
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible {
+  outline: 2px solid var(--ring-c);
+  outline-offset: 2px;
+}
+[id] {
+  scroll-margin-top: 72px; /* WCAG 2.2 Focus Not Obscured under sticky nav */
+}
+::selection {
+  background: var(--accent-soft);
+  color: var(--fg);
+}
+
+/* Print stylesheet for recovery-code sheets: black on white, no chrome */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --fg: #000000;
+    --fg-muted: #000000;
+    --border: #000000;
+  }
+  .no-print,
+  [data-app-nav],
+  [data-app-footer] {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+  .print-sheet {
+    font-family: var(--font-mono);
+    color: #000000;
+    background: #ffffff;
+  }
 }
