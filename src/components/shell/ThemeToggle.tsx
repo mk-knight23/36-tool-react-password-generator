@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import {
   applyTheme,
   getStoredTheme,
   setStoredTheme,
-  systemPrefersDark,
   type ThemeMode,
 } from "@/lib/theme";
 import { cn } from "@/lib/cn";
@@ -17,17 +16,33 @@ const OPTIONS: Array<{ mode: ThemeMode; label: string; Icon: typeof Sun }> = [
   { mode: "system", label: "System", Icon: Monitor },
 ];
 
-/** Tri-state theme toggle (light / dark / system), persisted in localStorage. */
+const THEME_EVENT = "vaultpass:theme-change";
+
+/** Subscribe to theme changes from this tab (custom event) and other tabs. */
+function subscribe(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  window.addEventListener(THEME_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(THEME_EVENT, callback);
+  };
+}
+
+/**
+ * Tri-state theme toggle (light / dark / system). The current mode is read from
+ * localStorage via useSyncExternalStore so it stays correct across tabs and
+ * needs no post-mount setState (which would fight hydration).
+ */
 export function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>("system");
-  const [mounted, setMounted] = useState(false);
+  const mode = useSyncExternalStore<ThemeMode>(
+    subscribe,
+    getStoredTheme,
+    () => "system",
+  );
 
-  useEffect(() => {
-    setMode(getStoredTheme());
-    setMounted(true);
-  }, []);
-
-  // Keep the DOM in sync with the OS when the user is on "system".
+  // When on "system", follow the OS preference live. This only touches the DOM
+  // attribute, never React state.
   useEffect(() => {
     if (mode !== "system" || typeof window === "undefined" || !window.matchMedia) {
       return;
@@ -39,9 +54,9 @@ export function ThemeToggle() {
   }, [mode]);
 
   const choose = (next: ThemeMode) => {
-    setMode(next);
     setStoredTheme(next);
     applyTheme(next);
+    window.dispatchEvent(new Event(THEME_EVENT));
   };
 
   return (
@@ -51,7 +66,7 @@ export function ThemeToggle() {
       className="inline-flex items-center gap-0.5 rounded-md border border-border bg-surface-sunken p-0.5"
     >
       {OPTIONS.map(({ mode: m, label, Icon }) => {
-        const active = mounted && mode === m;
+        const active = mode === m;
         return (
           <button
             key={m}
@@ -63,9 +78,7 @@ export function ThemeToggle() {
             className={cn(
               "inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm",
               "transition-colors duration-fast ease-enter",
-              active
-                ? "bg-surface text-accent shadow-1"
-                : "text-fg-muted hover:text-fg",
+              active ? "bg-surface text-accent shadow-1" : "text-fg-muted hover:text-fg",
             )}
           >
             <Icon size={16} strokeWidth={1.75} aria-hidden="true" />
@@ -74,14 +87,4 @@ export function ThemeToggle() {
       })}
     </div>
   );
-}
-
-/** Suppress the flash-of-unstyled fallback: the effective theme is set by an
- * inline script before hydration; this reads it once on mount for parity. */
-export function currentResolvedTheme(): "light" | "dark" {
-  if (typeof document !== "undefined") {
-    const attr = document.documentElement.getAttribute("data-theme");
-    if (attr === "light" || attr === "dark") return attr;
-  }
-  return systemPrefersDark() ? "dark" : "light";
 }

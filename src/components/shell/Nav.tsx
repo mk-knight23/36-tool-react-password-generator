@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { KeyRound, Menu, X } from "lucide-react";
@@ -29,11 +29,6 @@ function isActive(pathname: string, href: string): boolean {
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  // Close the mobile menu on navigation.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur-[8px] supports-[not(backdrop-filter:blur(8px))]:bg-bg">
@@ -102,6 +97,7 @@ export function Nav() {
                   key={link.href}
                   href={link.href}
                   aria-current={active ? "page" : undefined}
+                  onClick={() => setOpen(false)}
                   className={cn(
                     "rounded-md px-3 py-2.5 text-sm font-medium",
                     active

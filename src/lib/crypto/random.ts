@@ -32,7 +32,7 @@ function webcrypto(): Crypto {
 // Batched entropy pool: refill 256 uint32s per getRandomValues call so bulk
 // generation stays off the slow path while still using only Web Crypto.
 const POOL_SIZE = 256;
-let pool = new Uint32Array(POOL_SIZE);
+const pool = new Uint32Array(POOL_SIZE);
 let poolIndex = POOL_SIZE; // force a refill on first use
 
 function nextUint32(): number {

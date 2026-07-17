@@ -166,27 +166,33 @@ body {
   color: var(--fg);
 }
 
-/* Print stylesheet for recovery-code sheets: black on white, no chrome */
+/* Print stylesheet for recovery-code sheets: black on white, no chrome.
+   Only the .print-sheet region prints — nav, footer, toasts, and controls are
+   hidden (PRODUCT_SPEC 5.8: print preview contains no nav/footer/analytics). */
 @media print {
-  :root {
-    --bg: #ffffff;
-    --surface: #ffffff;
-    --fg: #000000;
-    --fg-muted: #000000;
-    --border: #000000;
-  }
-  .no-print,
-  [data-app-nav],
-  [data-app-footer] {
-    display: none !important;
-  }
   body {
     background: #ffffff;
     color: #000000;
   }
+  /* Hide everything, then reveal only the print sheet and its descendants. */
+  body * {
+    visibility: hidden;
+  }
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible;
+  }
   .print-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
     font-family: var(--font-mono);
     color: #000000;
     background: #ffffff;
+  }
+  .no-print {
+    display: none !important;
   }
 }
