@@ -14,20 +14,40 @@ import type { NextConfig } from "next";
  *   we run a tiny inline no-flash theme script in <head>. We do NOT allow
  *   'unsafe-eval' in the production runtime (`next start`).
  * - `style-src 'unsafe-inline'`: Tailwind v4 + Next inject inline styles.
- * When GTM/analytics lands (consent-gated), its origins get appended to
- * script-src/connect-src/img-src at that stage.
+ *
+ * Analytics origins (GTM/GA) are appended to script-src/connect-src/img-src
+ * ONLY when `NEXT_PUBLIC_GTM_ID` is configured at build time. In the default
+ * build (no id) the policy stays `connect-src 'self'`, preserving the strict
+ * zero-egress guarantee. Even when configured, the GTM script itself loads only
+ * after the visitor grants consent (see GtmScript.tsx); the CSP merely permits
+ * it. No generated secret is ever sent to these origins (STANDARDS §6/§8).
  */
+const GTM_ENABLED = Boolean(process.env.NEXT_PUBLIC_GTM_ID);
+const GTM_ORIGINS = "https://www.googletagmanager.com";
+const GA_ORIGINS =
+  "https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com";
+
+const scriptSrc = ["'self'", "'unsafe-inline'", GTM_ENABLED ? GTM_ORIGINS : ""]
+  .filter(Boolean)
+  .join(" ");
+const connectSrc = ["'self'", GTM_ENABLED ? `${GTM_ORIGINS} ${GA_ORIGINS}` : ""]
+  .filter(Boolean)
+  .join(" ");
+const imgSrc = ["'self'", "data:", GTM_ENABLED ? `${GTM_ORIGINS} ${GA_ORIGINS}` : ""]
+  .filter(Boolean)
+  .join(" ");
+
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "img-src 'self' data:",
+  `img-src ${imgSrc}`,
   "font-src 'self'",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline'",
-  "connect-src 'self'",
+  `script-src ${scriptSrc}`,
+  `connect-src ${connectSrc}`,
   "manifest-src 'self'",
   "worker-src 'self' blob:",
 ].join("; ");

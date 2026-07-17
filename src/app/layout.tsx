@@ -5,6 +5,8 @@ import { THEME_NO_FLASH_SCRIPT } from "@/lib/theme";
 import { ToastProvider } from "@/components/ui/Toast";
 import { Nav } from "@/components/shell/Nav";
 import { Footer } from "@/components/shell/Footer";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
+import { GtmScript } from "@/components/analytics/GtmScript";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -65,7 +67,9 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
+          <ConsentBanner />
         </ToastProvider>
+        <GtmScript />
       </body>
     </html>
   );
