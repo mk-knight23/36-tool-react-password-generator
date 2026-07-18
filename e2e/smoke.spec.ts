@@ -6,18 +6,22 @@ const SCREENSHOT_DIR = path.join(process.cwd(), "docs", "screenshots");
 
 test.describe("MK VaultPass — primary flow (deterministic, no AI keys)", () => {
   test("generates a password locally and shows its strength", async ({ page }, testInfo) => {
-    await page.goto("/generate");
+    await page.goto("/");
+
+    // Verify it auto-generates on load
+    const secret = page.locator("output").first();
+    await expect(secret).toBeVisible();
+    const initialValue = (await secret.textContent())?.trim() ?? "";
+    expect(initialValue.length).toBeGreaterThanOrEqual(12);
 
     const generate = page.getByRole("button", { name: /generate/i }).first();
     await expect(generate).toBeVisible();
 
     await generate.click();
 
-    const secret = page.locator("output").first();
-    await expect(secret).toBeVisible();
-    const value = (await secret.textContent())?.trim() ?? "";
-    // Default password length is 20; assert a non-trivial secret was produced.
-    expect(value.length).toBeGreaterThanOrEqual(12);
+    await expect
+      .poll(async () => (await secret.textContent())?.trim())
+      .not.toBe(initialValue);
 
     // Strength meter (role=meter) is shown with a bits readout, on every viewport.
     const meter = page.getByRole("meter");
@@ -35,14 +39,13 @@ test.describe("MK VaultPass — primary flow (deterministic, no AI keys)", () =>
   });
 
   test("keyboard: '.' regenerates a fresh secret", async ({ page }) => {
-    await page.goto("/generate");
-    await page.getByRole("button", { name: /generate/i }).first().click();
+    await page.goto("/");
 
     const secret = page.locator("output").first();
     await expect(secret).toBeVisible();
     const first = (await secret.textContent())?.trim();
 
-    // Focus is on the Generate button (not an input), so the "." shortcut fires.
+    // Focus is on the body, so the "." shortcut fires.
     await page.keyboard.press(".");
 
     await expect
@@ -53,7 +56,7 @@ test.describe("MK VaultPass — primary flow (deterministic, no AI keys)", () =>
   test("zero egress: generating fires no fetch/XHR and never transmits the secret (G3)", async ({
     page,
   }) => {
-    await page.goto("/generate");
+    await page.goto("/");
     await page.waitForLoadState("networkidle");
 
     const observed: Array<{ url: string; type: string; post: string | null }> = [];

@@ -11,6 +11,7 @@ interface SecretOutputProps {
   /** Live-region announcement, e.g. "New password generated, 96 bits". */
   announce?: string;
   defaultRevealed?: boolean;
+  onCopy?: () => void;
 }
 
 /** Mask a secret while preserving its length so layout does not jump. */
@@ -28,6 +29,7 @@ export function SecretOutput({
   what = "value",
   announce,
   defaultRevealed = true,
+  onCopy,
 }: SecretOutputProps) {
   const [revealed, setRevealed] = useState(defaultRevealed);
 
@@ -56,7 +58,7 @@ export function SecretOutput({
               <Eye size={18} strokeWidth={1.75} aria-hidden="true" />
             )}
           </button>
-          <CopyButton value={value} what={what} />
+          <CopyButton value={value} what={what} onCopyCallback={onCopy} />
         </div>
       </div>
       {/* Polite live region: announces new results without stealing focus. */}

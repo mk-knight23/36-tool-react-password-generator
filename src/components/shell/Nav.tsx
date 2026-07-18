@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { KeyRound, Menu, X } from "lucide-react";
+import { KeyRound, Menu, X, Github } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { SITE } from "@/lib/site";
-import { NAV_LINKS } from "@/lib/nav";
+import { PRIMARY_LINKS, SECONDARY_LINKS } from "@/lib/nav";
 import { ThemeToggle } from "./ThemeToggle";
 
 function isActive(pathname: string, href: string): boolean {
@@ -34,7 +34,8 @@ export function Nav() {
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">
-          {NAV_LINKS.map((link) => {
+          {/* Primary links */}
+          {PRIMARY_LINKS.map((link) => {
             const active = isActive(pathname, link.href);
             return (
               <Link
@@ -44,7 +45,29 @@ export function Nav() {
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-fast ease-enter",
                   active
-                    ? "text-accent"
+                    ? "text-accent font-semibold"
+                    : "text-fg-muted hover:bg-surface-sunken hover:text-fg",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+
+          <div className="h-4 w-px bg-border mx-2" aria-hidden="true" />
+
+          {/* Secondary links */}
+          {SECONDARY_LINKS.map((link) => {
+            const active = isActive(pathname, link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-fast ease-enter",
+                  active
+                    ? "text-accent font-semibold"
                     : "text-fg-muted hover:bg-surface-sunken hover:text-fg",
                 )}
               >
@@ -58,6 +81,15 @@ export function Nav() {
           <div className="hidden md:block">
             <ThemeToggle />
           </div>
+          <a
+            href={SITE.repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-fg-muted hover:bg-surface-sunken hover:text-fg transition-colors"
+            aria-label="GitHub Repository"
+          >
+            <Github size={18} strokeWidth={1.75} />
+          </a>
           <button
             type="button"
             className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-fg-muted hover:bg-surface-sunken hover:text-fg md:hidden"
@@ -78,7 +110,10 @@ export function Nav() {
       {open ? (
         <div id="mobile-menu" className="border-t border-border bg-surface md:hidden">
           <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
-            {NAV_LINKS.map((link) => {
+            <div className="font-semibold text-2xs uppercase tracking-[0.06em] text-fg-faint px-3 mb-1">
+              Create
+            </div>
+            {PRIMARY_LINKS.map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <Link
@@ -87,7 +122,30 @@ export function Nav() {
                   aria-current={active ? "page" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "rounded-md px-3 py-2.5 text-sm font-medium",
+                    "rounded-md px-3 py-2 text-sm font-medium",
+                    active
+                      ? "bg-accent-soft text-accent"
+                      : "text-fg-muted hover:bg-surface-sunken hover:text-fg",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            <div className="font-semibold text-2xs uppercase tracking-[0.06em] text-fg-faint px-3 mt-3 mb-1">
+              Vault & Library
+            </div>
+            {SECONDARY_LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "rounded-md px-3 py-2 text-sm font-medium",
                     active
                       ? "bg-accent-soft text-accent"
                       : "text-fg-muted hover:bg-surface-sunken hover:text-fg",

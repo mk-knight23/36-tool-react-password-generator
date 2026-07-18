@@ -14,6 +14,7 @@ interface CopyButtonProps {
   what?: string;
   variant?: "button" | "icon";
   className?: string;
+  onCopyCallback?: () => void;
 }
 
 /**
@@ -21,7 +22,7 @@ interface CopyButtonProps {
  * best-effort clipboard wipe based on the user's Settings delay. The secret is
  * never logged or sent anywhere — only written to the clipboard.
  */
-export function CopyButton({ value, what = "value", variant = "icon", className }: CopyButtonProps) {
+export function CopyButton({ value, what = "value", variant = "icon", className, onCopyCallback }: CopyButtonProps) {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const resetTimer = useRef<number | null>(null);
@@ -51,6 +52,7 @@ export function CopyButton({ value, what = "value", variant = "icon", className 
       "success",
     );
     track("result_copied", { what });
+    if (onCopyCallback) onCopyCallback();
   };
 
   if (variant === "button") {

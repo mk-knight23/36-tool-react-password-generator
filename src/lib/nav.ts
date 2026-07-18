@@ -9,13 +9,18 @@ export interface NavLink {
   label: string;
 }
 
-export const NAV_LINKS: NavLink[] = [
-  { href: "/generate", label: "Generate" },
+export const PRIMARY_LINKS: NavLink[] = [
+  { href: "/", label: "Generate" },
   { href: "/analyze", label: "Analyze" },
+];
+
+export const SECONDARY_LINKS: NavLink[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/history", label: "History" },
   { href: "/settings", label: "Settings" },
 ];
+
+export const NAV_LINKS: NavLink[] = [...PRIMARY_LINKS, ...SECONDARY_LINKS];
 
 /** Content/learning links for the footer (SEO internal linking, STANDARDS §5). */
 export const RESOURCE_LINKS: NavLink[] = [

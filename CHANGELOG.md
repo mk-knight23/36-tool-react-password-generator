@@ -4,6 +4,16 @@ All notable changes to MK VaultPass are recorded here. Entries describe work tha
 is actually in the codebase (STANDARDS §15). Dates are ISO (YYYY-MM-DD). This
 project follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] — 2026-07-18
+
+### Focused Product Transformation
+- **Homepage Integration**: Embedded the client-side `Workspace` directly on the homepage.
+- **Auto-generation on Mount**: Auto-generate a secure password as soon as the user opens the page.
+- **Basic Mode Layout**: Simplified default interface showing only password length, strength metrics, and copy/regenerate.
+- **Collapsible Advanced Options**: Grouped alternative generator modes (PIN, Wi-Fi, UUID, etc.) and bulk options inside a collapsible Settings section.
+- **Post-Copy Instructions**: Added visual reminder to save the generated password in a dedicated manager after copying.
+- **Layout and Navigation refinement**: Split header menu links and added a link to the GitHub repository.
+
 ## [2.0.0] — 2026-07-17
 
 Local-first rebuild. A complete rewrite of the legacy password generator into a
