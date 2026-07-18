@@ -261,11 +261,6 @@ its DNS at Vercel, and make it the primary domain. Keep `vaultpass.mkazi.live`
 attached and set a redirect from the subdomain to the new apex so existing links
 keep working.
 
-### Alternatives
-
-Netlify and Cloudflare Pages can also host a Next.js app and are viable, but
-Vercel is the supported and documented path here.
-
 More detail and the production verification checklist live in
 [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
