@@ -54,3 +54,5 @@ next-env.d.ts
 
 # Legacy reference copies (not part of v2 build)
 _legacy_reference/
+.env*
+!.env.example
